@@ -16,3 +16,4 @@ context, decision, and consequences.
 | [0004](0004-console-inspection-fallback-only.md) | Accepted | Keep console process inspection as fallback only |
 | [0005](0005-cli-first-interface.md) | Accepted | Start CLI first, but do not limit EvePilot to a CLI |
 | [0006](0006-provide-installer-scripts-for-services.md) | Accepted | Provide installer scripts for service components |
+| [0007](0007-use-src-layout-and-namespace-packages.md) | Accepted | Use src layout and namespace packages |

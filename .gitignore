@@ -25,6 +25,9 @@ build/
 dist/
 *.egg-info/
 
+# Runtime logs
+logs/
+
 # Editor and OS files
 .idea/
 .vscode/

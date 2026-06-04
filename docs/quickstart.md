@@ -4,8 +4,8 @@ This guide walks through the first steps with EvePilot after installation.
 
 See [Installation](installation.md) if you have not set up EvePilot yet.
 
-> EvePilot is currently in early development. The commands below describe the
-> intended first CLI workflow once the initial Python package is implemented.
+> EvePilot is currently in early development. The first CLI workflow focuses on
+> EVE-NG node discovery and console endpoint extraction.
 
 ---
 
@@ -16,52 +16,25 @@ Before using EvePilot, provide your EVE-NG server details. See [Configuration](c
 The quickest way is environment variables:
 
 ```bash
-export EVEPILOT_HOST=10.1.2.3
-export EVEPILOT_USERNAME=admin
-export EVEPILOT_PASSWORD=eve
+export EVEPILOT_EVE_NG_URL=http://10.1.2.3
+export EVEPILOT_EVE_NG_USERNAME=admin
+export EVEPILOT_EVE_NG_PASSWORD=eve
 ```
 
 On Windows (PowerShell):
 
 ```powershell
-$env:EVEPILOT_HOST = "10.1.2.3"
-$env:EVEPILOT_USERNAME = "admin"
-$env:EVEPILOT_PASSWORD = "eve"
+$env:EVEPILOT_EVE_NG_URL = "http://10.1.2.3"
+$env:EVEPILOT_EVE_NG_USERNAME = "admin"
+$env:EVEPILOT_EVE_NG_PASSWORD = "eve"
 ```
 
 ---
 
-## 2. List Labs
-
-List all available labs on your EVE-NG instance:
+## 2. List Nodes in a Lab
 
 ```bash
-evepilot labs list
-```
-
-Example output:
-
-```json
-[
-  {
-    "id": "EIGRP/Basics.unl",
-    "name": "Basics",
-    "path": "/EIGRP/"
-  },
-  {
-    "id": "BGP/Route-Reflector.unl",
-    "name": "Route-Reflector",
-    "path": "/BGP/"
-  }
-]
-```
-
----
-
-## 3. List Nodes in a Lab
-
-```bash
-evepilot nodes list --lab EIGRP/Basics.unl
+evepilot nodes --lab EIGRP/Basics.unl
 ```
 
 Example output:
@@ -73,57 +46,59 @@ Example output:
     "name": "CSR-1",
     "status": 2,
     "type": "qemu",
-    "console": "telnet",
     "url": "telnet://10.1.2.3:32769",
-    "host": "10.1.2.3",
-    "port": 32769
+    "console": {
+      "protocol": "telnet",
+      "host": "10.1.2.3",
+      "port": 32769
+    }
   },
   {
     "id": 2,
     "name": "CSR-2",
     "status": 2,
     "type": "qemu",
-    "console": "telnet",
     "url": "telnet://10.1.2.3:32770",
-    "host": "10.1.2.3",
-    "port": 32770
+    "console": {
+      "protocol": "telnet",
+      "host": "10.1.2.3",
+      "port": 32770
+    }
   }
 ]
 ```
 
 ---
 
-## 4. Get the Console Endpoint for a Node
+## 3. Get the Console Endpoint for a Node
 
 ```bash
-evepilot console get --lab EIGRP/Basics.unl --node CSR-1
+evepilot node-console --lab EIGRP/Basics.unl --node CSR-1
 ```
 
 Example output:
 
 ```json
 {
-  "id": 1,
-  "name": "CSR-1",
-  "status": 2,
-  "type": "qemu",
-  "console": "telnet",
-  "url": "telnet://10.1.2.3:32769",
-  "host": "10.1.2.3",
-  "port": 32769
+  "node": "CSR-1",
+  "console": {
+    "protocol": "telnet",
+    "host": "10.1.2.3",
+    "port": 32769
+  }
 }
 ```
 
 You can pipe this output to other tools:
 
 ```bash
-evepilot console get --lab EIGRP/Basics.unl --node CSR-1 | jq '.url'
-# "telnet://10.1.2.3:32769"
+evepilot node-console --lab EIGRP/Basics.unl --node CSR-1 | jq '.console.port'
+# 32769
 ```
 
 ---
 
-## 5. Connect to a Console (Phase 2)
+## 4. Connect to a Console (Phase 2)
 
 > Console bootstrap is planned for Phase 2 and is not yet available.
 

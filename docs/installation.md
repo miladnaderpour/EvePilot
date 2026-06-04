@@ -2,7 +2,7 @@
 
 ## Requirements
 
-- Python 3.10 or later
+- Python 3.11 or later
 - Access to an EVE-NG instance (Community or Professional)
 - Network access to the EVE-NG API (default port 443 or 80)
 
@@ -10,8 +10,8 @@
 
 ## Install from Source (Development)
 
-EvePilot is still in the design and early implementation phase. Once Python
-packaging is added, install directly from the repository:
+EvePilot currently uses a monorepo layout with editable local packages. Install
+the core package, EVE-NG integration package, and CLI app from the repository:
 
 ```bash
 # Clone the repository
@@ -29,29 +29,29 @@ source .venv/bin/activate
 # On Windows:
 .venv\Scripts\activate
 
-# Install EvePilot in editable mode after packaging is available
-pip install -e .
+# Install EvePilot packages in editable mode
+pip install -e packages/evepilot-core -e packages/evepilot-eve-ng -e apps/cli
 ```
 
 After installation, verify the CLI works:
 
 ```bash
-evepilot --version
+evepilot --help
 ```
 
 ---
 
 ## Install with Development Dependencies
 
-If you plan to contribute or run tests, install the development dependencies
-after the packaging configuration defines them:
+If you plan to contribute or run tests, install the editable packages and test
+tools:
 
 ```bash
-pip install -e ".[dev]"
+pip install -e packages/evepilot-core -e packages/evepilot-eve-ng -e apps/cli pytest ruff mypy
 ```
 
-This should install additional tools such as `pytest`, `black`, `ruff`, and
-`mypy` once the development dependency group is defined.
+This installs the CLI and development tools such as `pytest`, `ruff`, and
+`mypy`.
 
 ---
 
@@ -61,7 +61,7 @@ When new changes are available:
 
 ```bash
 git pull
-pip install -e .
+pip install -e packages/evepilot-core -e packages/evepilot-eve-ng -e apps/cli
 ```
 
 ---
@@ -69,7 +69,7 @@ pip install -e .
 ## Uninstalling
 
 ```bash
-pip uninstall evepilot
+pip uninstall evepilot-cli evepilot-eve-ng evepilot-core
 ```
 
 ---
@@ -78,10 +78,8 @@ pip uninstall evepilot
 
 **`evepilot: command not found`**
 
-Make sure your virtual environment is activated and the install completed without errors.
-
-If the project does not contain packaging metadata yet, the `evepilot` command
-will not be available until the CLI package is implemented.
+Make sure your virtual environment is activated and the CLI package installed
+without errors.
 
 **SSL errors connecting to EVE-NG**
 
@@ -89,7 +87,7 @@ If your EVE-NG instance uses a self-signed certificate, you may need to disable 
 
 **Python version errors**
 
-EvePilot requires Python 3.10 or later. Check your version with:
+EvePilot requires Python 3.11 or later. Check your version with:
 
 ```bash
 python --version

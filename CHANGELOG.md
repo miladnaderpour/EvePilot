@@ -20,6 +20,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Project guidelines for repository layout, Python namespace, and service
   installer expectations
 - Contribution guidelines for scoped commit messages
+- Architecture decision for Python `src/` layout and shared namespace packages
+- Milestone 0.1.0 Python scaffold with core package, EVE-NG package, CLI app,
+  and focused tests
+- EVE-NG-specific errors separated from core base exceptions
+- EVE-NG domain error factories for stable codes, messages, and details
+- Multi-target logging configuration for stdout and file outputs with JSON and
+  text formats
+- Project guidelines for logging configuration, UTC log timestamps, and
+  dataclass/model naming
+- Documentation for local and Linux service log file path conventions
 - Project documentation (CHANGELOG, CONTRIBUTING, SECURITY, NOTICE)
 - GitHub issue and pull request templates
 - Developer documentation (installation, quickstart, configuration)

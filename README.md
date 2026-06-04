@@ -193,7 +193,7 @@ Minimum target features:
 Example command idea:
 
 ```bash
-evepilot nodes list --lab EIGRP/Basics.unl
+evepilot nodes --lab EIGRP/Basics.unl
 ```
 
 Example output:
@@ -205,10 +205,12 @@ Example output:
     "name": "CSR-1",
     "status": 2,
     "type": "qemu",
-    "console": "telnet",
     "url": "telnet://10.1.2.3:32769",
-    "host": "10.1.2.3",
-    "port": 32769
+    "console": {
+      "protocol": "telnet",
+      "host": "10.1.2.3",
+      "port": 32769
+    }
   }
 ]
 ```
@@ -216,21 +218,19 @@ Example output:
 Example command idea:
 
 ```bash
-evepilot console get --lab EIGRP/Basics.unl --node CSR-1
+evepilot node-console --lab EIGRP/Basics.unl --node CSR-1
 ```
 
 Example output:
 
 ```json
 {
-  "id": 1,
-  "name": "CSR-1",
-  "status": 2,
-  "type": "qemu",
-  "console": "telnet",
-  "url": "telnet://10.1.2.3:32769",
-  "host": "10.1.2.3",
-  "port": 32769
+  "node": "CSR-1",
+  "console": {
+    "protocol": "telnet",
+    "host": "10.1.2.3",
+    "port": 32769
+  }
 }
 ```
 

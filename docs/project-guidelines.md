@@ -161,6 +161,247 @@ src/evepilot/__init__.py
 
 The top-level `evepilot` directory must remain a namespace package.
 
+## Exception Boundaries
+
+`EvePilotError` is the global parent exception. It lives in
+`evepilot.core.exceptions` so every package can share one common catch point.
+
+Each package or domain must define its own domain-specific errors instead of
+adding every error type to `evepilot.core.exceptions`.
+
+Example:
+
+```text
+evepilot.core.exceptions
+`-- EvePilotError
+
+evepilot.eve_ng.errors
+|-- EveNgError
+|-- EveNgApiError
+|-- EveNgAuthError
+|-- EveNgNotFoundError
+`-- EveNgConsoleError
+```
+
+CLI and API layers may catch `EvePilotError` globally, while package internals
+should raise their own domain-specific error classes.
+
+Domain `errors.py` files are the source of truth for domain error classes,
+stable error codes, messages, and error factory helpers.
+
+Example:
+
+```python
+def node_not_found_error(*, lab_path: str, node_name: str) -> EveNgNotFoundError:
+    return EveNgNotFoundError(
+        code="eve_ng.node_not_found",
+        message="EVE-NG node was not found.",
+        details={"lab_path": lab_path, "node_name": node_name},
+        status_code=404,
+    )
+```
+
+Callers should prefer these helpers instead of constructing domain errors
+inline.
+
+## Configuration
+
+EvePilot uses `pydantic-settings` for runtime configuration.
+
+Environment variables must use the `EVEPILOT_` prefix and must be
+case-sensitive.
+
+Example:
+
+```text
+EVEPILOT_EVE_NG_URL=http://10.1.2.3
+EVEPILOT_EVE_NG_USERNAME=admin
+EVEPILOT_EVE_NG_PASSWORD=eve
+EVEPILOT_EVE_NG_VERIFY_SSL=false
+```
+
+## Logging Configuration
+
+EvePilot logging must support simple and advanced configuration modes.
+
+Simple mode uses:
+
+```text
+EVEPILOT_LOG_OUTPUT
+EVEPILOT_LOG_LEVEL
+EVEPILOT_LOG_FORMAT
+EVEPILOT_LOG_FILE_PATH
+```
+
+Advanced mode uses:
+
+```text
+EVEPILOT_LOG_TARGETS_JSON
+```
+
+If `EVEPILOT_LOG_TARGETS_JSON` is set, it overrides the simple logging settings
+and defines multiple logging targets.
+
+For Milestone 0.1.0, supported outputs are:
+
+- `stdout`
+- `file`
+
+Supported formats are:
+
+- `json`
+- `text`
+
+The public logging API must remain:
+
+```python
+setup_logging(settings)
+get_logger(name)
+```
+
+Application code must not know whether logs go to stdout, file, Redis, or
+another backend.
+
+In `setup_logging(settings)`, build targets like this: if `log_targets_json`
+exists, parse it; otherwise, create one default target from the simple
+variables.
+
+## Log File Path
+
+The default log file path is `logs/evepilot.log` for local development.
+
+Installed Linux services should use `/var/log/evepilot/evepilot.log`,
+configured by the installer script through `/etc/evepilot/evepilot.env`.
+
+The code must not require root permissions during local development.
+
+Multiple log files should be supported through advanced logging targets, not
+through many hardcoded config keys.
+
+## Logging Timestamp Timezone
+
+EvePilot logs must use UTC timestamps by default.
+
+Milestone 0.1.0 does not expose timezone configuration. This keeps log output
+consistent for OpenSearch, Docker, systemd, CI/CD, and future distributed
+components.
+
+The logging implementation may be designed internally so timezone support can be
+added later, but the public configuration should stay simple for now.
+
+## Dataclass and Model Naming
+
+EvePilot uses dataclasses for internal domain and runtime models, and Pydantic
+models for configuration and future API boundaries.
+
+### Dataclasses
+
+Internal dataclasses should use clear domain names without unnecessary suffixes.
+
+Good:
+
+```text
+ConsoleEndpoint
+LogTarget
+EveNgNode
+NodeDiscoveryResult
+```
+
+Avoid:
+
+```text
+ConsoleEndpointData
+LogTargetModel
+EveNgNodeDTO
+```
+
+Dataclasses should normally use:
+
+```python
+@dataclass(frozen=True, slots=True)
+```
+
+Use mutable dataclasses only when mutation is intentional.
+
+### Pydantic Settings
+
+Runtime configuration should use Pydantic settings classes.
+
+Current primary settings class:
+
+```text
+Settings
+```
+
+Future grouped settings may use names such as:
+
+```text
+LoggingSettings
+EveNgSettings
+```
+
+### API Schemas
+
+Future API request and response schemas should use:
+
+```text
+In  = request/input schema
+Out = response/output schema
+```
+
+Examples:
+
+```text
+BootstrapRequestIn
+NodeConsoleOut
+LabNodesOut
+```
+
+### External Payloads
+
+Typed models representing raw external API responses should use the `Payload`
+suffix.
+
+Examples:
+
+```text
+EveNgNodePayload
+EveNgLabPayload
+```
+
+### Results and Commands
+
+Operation result objects should use the `Result` suffix.
+
+Examples:
+
+```text
+NodeDiscoveryResult
+ConsoleParseResult
+```
+
+Command/request objects for internal workflows should use the `Command` suffix.
+
+Examples:
+
+```text
+DiscoverNodeCommand
+BootstrapNodeCommand
+```
+
+### For Milestone 0.1.0
+
+Use only these now:
+
+```text
+ConsoleEndpoint
+LogTarget
+EveNgNode
+Settings
+EvePilotError
+EveNgError
+```
+
 ## Service Installer Scripts
 
 Service components should be installable through provided scripts. Users should

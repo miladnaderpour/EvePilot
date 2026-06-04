@@ -1,6 +1,7 @@
 # Configuration
 
-EvePilot can be configured using environment variables or a configuration file.
+EvePilot can be configured using environment variables or a local `.env` file.
+Environment variables use the `EVEPILOT_` prefix and are case-sensitive.
 
 ---
 
@@ -8,10 +9,9 @@ EvePilot can be configured using environment variables or a configuration file.
 
 Configuration is resolved in the following priority order (highest to lowest):
 
-1. CLI flags (per command)
-2. Environment variables
-3. Configuration file (`evepilot.toml`)
-4. Defaults
+1. Environment variables
+2. `.env` file in the current working directory
+3. Defaults
 
 ---
 
@@ -19,63 +19,49 @@ Configuration is resolved in the following priority order (highest to lowest):
 
 | Variable | Description | Default |
 |---|---|---|
-| `EVEPILOT_HOST` | EVE-NG server hostname or IP address | Required |
-| `EVEPILOT_PORT` | EVE-NG API port | `443` |
-| `EVEPILOT_USERNAME` | EVE-NG username | `admin` |
-| `EVEPILOT_PASSWORD` | EVE-NG password | Required |
-| `EVEPILOT_SSL_VERIFY` | Verify SSL certificates (`true` / `false`) | `true` |
-| `EVEPILOT_PROTOCOL` | API protocol (`https` / `http`) | `https` |
-| `EVEPILOT_TIMEOUT` | Request timeout in seconds | `30` |
-| `EVEPILOT_OUTPUT` | Output format (`json` / `table` / `plain`) | `json` |
+| `EVEPILOT_EVE_NG_URL` | EVE-NG base URL, including protocol | Required |
+| `EVEPILOT_EVE_NG_USERNAME` | EVE-NG username | Required |
+| `EVEPILOT_EVE_NG_PASSWORD` | EVE-NG password | Required |
+| `EVEPILOT_EVE_NG_VERIFY_SSL` | Verify SSL certificates (`true` / `false`) | `false` |
+| `EVEPILOT_EVE_NG_TIMEOUT_SECONDS` | Request timeout in seconds | `10.0` |
+| `EVEPILOT_LOG_LEVEL` | Logging level | `INFO` |
+| `EVEPILOT_LOG_FORMAT` | Logging format (`json` / `text`) | `json` |
+| `EVEPILOT_LOG_OUTPUT` | Logging output (`stdout` / `file`) | `stdout` |
+| `EVEPILOT_LOG_FILE_PATH` | File logging path when output is `file` | `logs/evepilot.log` |
+| `EVEPILOT_LOG_TARGETS_JSON` | Advanced multi-target logging configuration | unset |
 
 Example:
 
 ```bash
-export EVEPILOT_HOST=10.1.2.3
-export EVEPILOT_USERNAME=admin
-export EVEPILOT_PASSWORD=eve
-export EVEPILOT_SSL_VERIFY=false
+export EVEPILOT_EVE_NG_URL=http://10.1.2.3
+export EVEPILOT_EVE_NG_USERNAME=admin
+export EVEPILOT_EVE_NG_PASSWORD=eve
+export EVEPILOT_EVE_NG_VERIFY_SSL=false
+export EVEPILOT_LOG_OUTPUT=stdout
+export EVEPILOT_LOG_LEVEL=INFO
+export EVEPILOT_LOG_FORMAT=json
 ```
 
 ---
 
-## Configuration File
+## `.env` File
 
-EvePilot looks for `evepilot.toml` in the following locations (in order):
+EvePilot also loads a local `.env` file from the current working directory.
 
-1. Path specified by `--config` CLI flag
-2. Current working directory: `./evepilot.toml`
-3. User config directory: `~/.config/evepilot/evepilot.toml`
+Example `.env`:
 
-### Example `evepilot.toml`
-
-```toml
-[eveng]
-host = "10.1.2.3"
-port = 443
-username = "admin"
-password = "eve"
-protocol = "https"
-ssl_verify = false
-timeout = 30
-
-[output]
-format = "json"
+```text
+EVEPILOT_EVE_NG_URL=http://10.1.2.3
+EVEPILOT_EVE_NG_USERNAME=admin
+EVEPILOT_EVE_NG_PASSWORD=eve
+EVEPILOT_EVE_NG_VERIFY_SSL=false
+EVEPILOT_LOG_LEVEL=INFO
+EVEPILOT_LOG_FORMAT=json
+EVEPILOT_LOG_OUTPUT=stdout
 ```
 
-> **Security note:** Do not commit `evepilot.toml` files that contain credentials to version control. Add `evepilot.toml` to your `.gitignore`.
-
----
-
-## CLI Flags
-
-Most commands accept connection flags directly:
-
-```bash
-evepilot --host 10.1.2.3 --username admin --password eve nodes list --lab EIGRP/Basics.unl
-```
-
-Run `evepilot --help` or `evepilot <command> --help` to see all available flags.
+> **Security note:** Do not commit `.env` files that contain credentials to
+> version control. `.env` is ignored by the project `.gitignore`.
 
 ---
 
@@ -84,32 +70,66 @@ Run `evepilot --help` or `evepilot <command> --help` to see all available flags.
 If your EVE-NG instance uses a self-signed certificate, disable SSL verification:
 
 ```bash
-export EVEPILOT_SSL_VERIFY=false
+export EVEPILOT_EVE_NG_VERIFY_SSL=false
 ```
 
-Or in `evepilot.toml`:
+Or in `.env`:
 
-```toml
-[eveng]
-ssl_verify = false
+```text
+EVEPILOT_EVE_NG_VERIFY_SSL=false
 ```
 
 > **Warning:** Disabling SSL verification removes protection against man-in-the-middle attacks. Only do this in trusted lab environments.
 
 ---
 
-## Output Formats
+## Output
 
-EvePilot supports multiple output formats for use in different workflows:
-
-| Format | Description |
-|---|---|
-| `json` | Structured JSON - suitable for piping to `jq` or other tools |
-| `table` | Human-readable table |
-| `plain` | Minimal plain text - suitable for shell scripting |
-
-Set the default with `EVEPILOT_OUTPUT` or use the `--output` flag per command:
+The first CLI commands return structured JSON suitable for piping to `jq` or
+other automation tools:
 
 ```bash
-evepilot nodes list --lab EIGRP/Basics.unl --output table
+evepilot nodes --lab EIGRP/Basics.unl
 ```
+
+## Logging
+
+Simple logging configuration creates one logging target:
+
+```text
+EVEPILOT_LOG_OUTPUT=stdout
+EVEPILOT_LOG_LEVEL=INFO
+EVEPILOT_LOG_FORMAT=json
+EVEPILOT_LOG_FILE_PATH=logs/evepilot.log
+```
+
+The default log file path is `logs/evepilot.log` for local development.
+Installed Linux services should use `/var/log/evepilot/evepilot.log`,
+configured by the installer script through `/etc/evepilot/evepilot.env`.
+
+Advanced logging configuration can define multiple targets with
+`EVEPILOT_LOG_TARGETS_JSON`:
+
+```text
+EVEPILOT_LOG_TARGETS_JSON='[
+  {
+    "name": "stdout-json",
+    "output": "stdout",
+    "level": "INFO",
+    "format": "json"
+  },
+  {
+    "name": "file-text",
+    "output": "file",
+    "level": "INFO",
+    "format": "text",
+    "file_path": "logs/evepilot.log"
+  }
+]'
+```
+
+For Milestone 0.1.0, supported outputs are `stdout` and `file`. Supported
+formats are `json` and `text`. Structured log timestamps use UTC.
+
+Multiple log files should be configured through advanced logging targets, not
+through additional hardcoded config keys.
