@@ -10,12 +10,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+
 - Initial project structure and repository setup
 - README with vision, planned capabilities, and architecture overview
 - Apache 2.0 license
 - Git ignore rules for local configuration, credentials, caches, and build outputs
 - Initial public documentation structure for vision, roadmap, architecture,
   decisions, and research
+- Project guidelines for repository layout, Python namespace, and service
+  installer expectations
+- Contribution guidelines for scoped commit messages
 - Project documentation (CHANGELOG, CONTRIBUTING, SECURITY, NOTICE)
 - GitHub issue and pull request templates
 - Developer documentation (installation, quickstart, configuration)

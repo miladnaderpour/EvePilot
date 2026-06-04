@@ -42,7 +42,7 @@ web UI, scheduler, and CI/CD runner integrations.
 ## Initial Shape
 
 ```text
-------------------+
++------------------+
 | CLI / Automation |
 +--------+---------+
          |

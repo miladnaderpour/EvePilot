@@ -106,13 +106,15 @@ Branch from `dev` for all features and fixes. Target `dev` in your pull request.
 
 Use the following format:
 
-```
-<type>: <short description>
+```text
+<type>(<scope>): <short summary>
 
-<optional body>
+- Bullet point 1
+- Bullet point 2
+- Bullet point 3
 ```
 
-Types:
+Allowed types:
 
 | Type | When to use |
 |---|---|
@@ -122,14 +124,16 @@ Types:
 | `refactor` | Code change with no functional effect |
 | `test` | Adding or updating tests |
 | `chore` | Build, tooling, or dependency changes |
+| `security` | Security-related change |
 
 Example:
 
-```
-feat: add console URL discovery for EVE-NG nodes
+```text
+feat(eve-ng): add console URL discovery
 
-Implements Phase 1 API-based node discovery.
-Returns structured JSON with console host and port.
+- Add EVE-NG node lookup by lab path and node name
+- Parse console protocol, host, and port from node URL
+- Return structured node data for CLI and automation use
 ```
 
 ---
