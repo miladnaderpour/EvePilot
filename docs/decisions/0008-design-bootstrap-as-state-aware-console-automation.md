@@ -2,7 +2,7 @@
 
 ## Status
 
-Accepted
+Accepted, refined by [0009](0009-design-bootstrap-preparation-as-flow-driven.md)
 
 ## Context
 
@@ -40,3 +40,9 @@ engine, reload watcher, templates, or config-file bootstrap.
   stable.
 - Workflow and template code should not be added until a later milestone needs
   it.
+
+## Refinement
+
+ADR 0009 refines this decision: console state detection remains useful, but
+bootstrap preparation must be driven by explicit user-provided or built-in
+flows, not by a generic detector acting as the main decision engine.

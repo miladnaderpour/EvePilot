@@ -34,6 +34,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   automation
 - Initial bootstrap package scaffold with console state models, detector, and
   domain errors
+- Bootstrap design refinement for flow-driven preparation with detector as a
+  diagnostic helper
+- Bootstrap flow design rule for resumable flows with flow-defined state markers
+- Bootstrap flow-control design using step-level `next` rules
+- Milestone 0.2.0 bootstrap flow action surface
 - Project documentation (CHANGELOG, CONTRIBUTING, SECURITY, NOTICE)
 - GitHub issue and pull request templates
 - Developer documentation (installation, quickstart, configuration)

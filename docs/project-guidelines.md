@@ -404,10 +404,13 @@ EveNgError
 
 ## Bootstrap Design
 
-`evepilot-bootstrap` must be designed as a state-aware console automation
-package.
+`evepilot-bootstrap` must be designed as a state-aware, flow-driven console
+automation package.
 
 Do not implement bootstrap as a blind command sender.
+
+Do not make the generic detector the main decision engine for preparing all
+router types.
 
 The bootstrap package must separate:
 
@@ -416,8 +419,58 @@ The bootstrap package must separate:
 - Console preparation
 - Future workflow execution
 
-Milestone 0.2.0 should implement only console connection, state detection, and
-preparation.
+Bootstrap preparation must be driven by explicit user-provided or built-in
+flows. Built-in flows may be shipped for common router images, but they are
+defaults and examples, not the only supported behavior.
+
+Bootstrap flows must be resumable.
+
+A flow file must define state markers using plain string patterns and/or regex
+patterns. EvePilot must use these flow-defined markers to detect the current
+console state before executing a step.
+
+The flow runner must not blindly start from the first step every time. It should
+detect the current state, find the matching step for that state, execute it, then
+follow the step's `next` rule.
+
+This allows EvePilot to continue correctly even if the user manually answered an
+earlier prompt before running the flow.
+
+Supported `next` values for Milestone 0.2.0:
+
+- `detect`: read console output again, detect state, and execute the matching
+  step.
+- `next`: continue to the next step in order.
+- `stop`: stop the flow.
+- `step:<step-name>`: jump to a specific named step.
+
+`skip_when_state` may be added later, but for Milestone 0.2.0 the preferred
+design is state-driven matching through `when_state`.
+
+Flow instructions should describe concrete actions such as:
+
+- `wait`
+- `send`
+- `send_if_no_output`
+- `expect`
+- `expect_send`
+- `ready`
+
+Actions such as `reload_wait`, `branch`, `loop`, `render_template`,
+`set_variable`, and config push are intentionally deferred to later milestones.
+
+The generic detector may remain as a helper for debugging and validation.
+
+Initial flow models should be shaped around:
+
+- `FlowStateMarker`: how to recognize a named state.
+- `FlowStep`: what to do when that state is detected.
+- `next`: how the runner should continue after a step executes.
+
+Milestone 0.2.0 should focus on console connection, flow models/loading, a small
+flow runner, and safe preparation. It should not implement full config push,
+reload watchers, templates, or a YAML workflow engine beyond the small
+preparation-flow shape needed now.
 
 Future reload workflows must be supported by extending the same primitives, not
 by rewriting them.

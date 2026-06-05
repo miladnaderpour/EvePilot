@@ -17,4 +17,5 @@ context, decision, and consequences.
 | [0005](0005-cli-first-interface.md) | Accepted | Start CLI first, but do not limit EvePilot to a CLI |
 | [0006](0006-provide-installer-scripts-for-services.md) | Accepted | Provide installer scripts for service components |
 | [0007](0007-use-src-layout-and-namespace-packages.md) | Accepted | Use src layout and namespace packages |
-| [0008](0008-design-bootstrap-as-state-aware-console-automation.md) | Accepted | Design bootstrap as state-aware console automation |
+| [0008](0008-design-bootstrap-as-state-aware-console-automation.md) | Accepted, refined by 0009 | Design bootstrap as state-aware console automation |
+| [0009](0009-design-bootstrap-preparation-as-flow-driven.md) | Accepted | Design bootstrap preparation as flow-driven |
