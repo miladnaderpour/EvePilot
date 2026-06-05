@@ -402,6 +402,26 @@ EvePilotError
 EveNgError
 ```
 
+## Bootstrap Design
+
+`evepilot-bootstrap` must be designed as a state-aware console automation
+package.
+
+Do not implement bootstrap as a blind command sender.
+
+The bootstrap package must separate:
+
+- Console transport
+- Console state detection
+- Console preparation
+- Future workflow execution
+
+Milestone 0.2.0 should implement only console connection, state detection, and
+preparation.
+
+Future reload workflows must be supported by extending the same primitives, not
+by rewriting them.
+
 ## Service Installer Scripts
 
 Service components should be installable through provided scripts. Users should

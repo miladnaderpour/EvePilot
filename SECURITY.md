@@ -3,7 +3,7 @@
 ## Supported Versions
 
 | Version | Supported |
-|---|---|
+| --- | --- |
 | Latest (`main`) | Yes |
 
 As EvePilot is in early development, only the latest version on `main` receives security fixes.

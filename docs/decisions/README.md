@@ -9,7 +9,7 @@ context, decision, and consequences.
 ## Decisions
 
 | ADR | Status | Decision |
-|---|---|---|
+| --- | --- | --- |
 | [0001](0001-use-monorepo.md) | Accepted | Use a monorepo |
 | [0002](0002-python-first-core.md) | Accepted | Start with a Python core |
 | [0003](0003-eve-ng-api-as-source-of-truth.md) | Accepted | Use the EVE-NG API as the primary source of truth |
@@ -17,3 +17,4 @@ context, decision, and consequences.
 | [0005](0005-cli-first-interface.md) | Accepted | Start CLI first, but do not limit EvePilot to a CLI |
 | [0006](0006-provide-installer-scripts-for-services.md) | Accepted | Provide installer scripts for service components |
 | [0007](0007-use-src-layout-and-namespace-packages.md) | Accepted | Use src layout and namespace packages |
+| [0008](0008-design-bootstrap-as-state-aware-console-automation.md) | Accepted | Design bootstrap as state-aware console automation |

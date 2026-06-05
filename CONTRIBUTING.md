@@ -79,7 +79,7 @@ mypy .
 ## Branching Strategy
 
 | Branch | Purpose |
-|---|---|
+| --- | --- |
 | `main` | Stable, releasable code |
 | `dev` | Active development |
 | `feature/<name>` | New features |
@@ -117,7 +117,7 @@ Use the following format:
 Allowed types:
 
 | Type | When to use |
-|---|---|
+| --- | --- |
 | `feat` | New feature |
 | `fix` | Bug fix |
 | `docs` | Documentation only |

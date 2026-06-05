@@ -18,7 +18,7 @@ Configuration is resolved in the following priority order (highest to lowest):
 ## Environment Variables
 
 | Variable | Description | Default |
-|---|---|---|
+| --- | --- | --- |
 | `EVEPILOT_EVE_NG_URL` | EVE-NG base URL, including protocol | Required |
 | `EVEPILOT_EVE_NG_USERNAME` | EVE-NG username | Required |
 | `EVEPILOT_EVE_NG_PASSWORD` | EVE-NG password | Required |

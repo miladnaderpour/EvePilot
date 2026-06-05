@@ -30,6 +30,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Project guidelines for logging configuration, UTC log timestamps, and
   dataclass/model naming
 - Documentation for local and Linux service log file path conventions
+- Bootstrap design guideline and architecture decision for state-aware console
+  automation
 - Project documentation (CHANGELOG, CONTRIBUTING, SECURITY, NOTICE)
 - GitHub issue and pull request templates
 - Developer documentation (installation, quickstart, configuration)
