@@ -32,6 +32,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Documentation for local and Linux service log file path conventions
 - Bootstrap design guideline and architecture decision for state-aware console
   automation
+- Initial bootstrap package scaffold with console state models, detector, and
+  domain errors
 - Project documentation (CHANGELOG, CONTRIBUTING, SECURITY, NOTICE)
 - GitHub issue and pull request templates
 - Developer documentation (installation, quickstart, configuration)

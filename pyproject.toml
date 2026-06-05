@@ -16,6 +16,7 @@ testpaths = ["tests"]
 pythonpath = [
     "packages/evepilot-core/src",
     "packages/evepilot-eve-ng/src",
+    "packages/evepilot-bootstrap/src",
     "apps/cli/src",
 ]
 
@@ -34,5 +35,6 @@ packages = ["evepilot", "evepilot_cli"]
 mypy_path = [
     "packages/evepilot-core/src",
     "packages/evepilot-eve-ng/src",
+    "packages/evepilot-bootstrap/src",
     "apps/cli/src",
 ]

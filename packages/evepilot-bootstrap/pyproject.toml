@@ -1,0 +1,16 @@
+[build-system]
+requires = ["setuptools>=69", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "evepilot-bootstrap"
+version = "0.2.0"
+description = "Console bootstrap primitives for EvePilot."
+requires-python = ">=3.11"
+dependencies = [
+    "evepilot-core==0.1.0",
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+namespaces = true
