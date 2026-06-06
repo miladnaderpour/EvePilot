@@ -42,6 +42,26 @@ class JsonLogFormatter(logging.Formatter):
         return json.dumps(payload, sort_keys=True)
 
 
+class TextLogFormatter(logging.Formatter):
+    """Text formatter with UTC timestamps."""
+
+    def __init__(self) -> None:
+        super().__init__()
+        self.timezone = UTC
+
+    def format(self, record: logging.LogRecord) -> str:
+        timestamp = datetime.now(self.timezone).isoformat()
+        base_message = f"{timestamp} {record.levelname} {record.name} {record.getMessage()}"
+        extras = {
+            key: _redact(key, value)
+            for key, value in record.__dict__.items()
+            if not key.startswith("_") and key not in _standard_record_keys()
+        }
+        if not extras:
+            return base_message
+        return f"{base_message} {json.dumps(extras, sort_keys=True)}"
+
+
 def setup_logging(settings: Settings | None = None) -> None:
     """Configure root logging for EvePilot."""
 
@@ -117,7 +137,7 @@ def _build_handler(target: LogTarget) -> logging.Handler:
     if log_format == "json":
         formatter: logging.Formatter = JsonLogFormatter()
     elif log_format == "text":
-        formatter = logging.Formatter("%(levelname)s %(name)s %(message)s")
+        formatter = TextLogFormatter()
     else:
         raise EvePilotConfigError(
             code="config.unsupported_log_format",
@@ -175,6 +195,7 @@ def _standard_record_keys() -> set[str]:
         "relativeCreated",
         "thread",
         "threadName",
+        "taskName",
         "processName",
         "process",
         "message",

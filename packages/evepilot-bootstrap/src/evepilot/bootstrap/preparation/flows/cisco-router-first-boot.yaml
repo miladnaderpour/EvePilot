@@ -1,0 +1,137 @@
+name: cisco-router-first-boot
+description: Generic Cisco router first-boot console preparation flow.
+version: 1
+
+startup:
+  initial_read_seconds: 3
+  send_enter_if_no_output: true
+  wake_enter: "\r\n"
+  wake_attempts: 3
+  read_after_wake_seconds: 2
+
+variables:
+  enable_secret:
+    required: false
+    secret: true
+
+states:
+  initial_config_dialog:
+    patterns:
+      - "Would you like to enter the initial configuration dialog? [yes/no]:"
+      - "% Please answer 'yes' or 'no'."
+    regex:
+      - "Would you like to enter the initial configuration dialog\\?"
+
+  enable_secret_prompt:
+    patterns:
+      - "Enter enable secret:"
+
+  confirm_enable_secret_prompt:
+    patterns:
+      - "Confirm enable secret:"
+
+  password_prompt:
+    patterns:
+      - "Password:"
+
+  setup_selection_prompt:
+    patterns:
+      - "Enter your selection [2]:"
+
+  terminate_autoinstall_prompt:
+    patterns:
+      - "Would you like to terminate autoinstall? [yes]:"
+    regex:
+      - "Would you like to terminate autoinstall\\?"
+
+  autoinstall_running:
+    patterns:
+      - "No startup-config, starting autoinstall/pnp/ztp..."
+      - "Autoinstall will terminate if any input is detected on console"
+
+  console_noise_wait:
+    patterns:
+      - "% Crashinfo may not be recovered"
+      - "This file system device reports an error"
+      - "Translating \""
+      - "domain server"
+
+  press_return:
+    patterns:
+      - "Press RETURN to get started"
+
+  user_exec_prompt:
+    regex:
+      - "(^|\\r|\\n)[A-Za-z0-9_.-]*>\\s*$"
+
+  privileged_exec_prompt:
+    regex:
+      - "(^|\\r|\\n)[A-Za-z0-9_.-]*#\\s*$"
+
+steps:
+  - name: decline-initial-config-dialog
+    when_state: initial_config_dialog
+    action: send
+    send: "no\r\n"
+
+  - name: enter-enable-secret
+    when_state: enable_secret_prompt
+    action: send
+    send_secret: enable_secret
+    optional: true
+
+  - name: confirm-enable-secret
+    when_state: confirm_enable_secret_prompt
+    action: send
+    send_secret: enable_secret
+    optional: true
+
+  - name: enter-enable-password
+    when_state: password_prompt
+    action: send
+    send_secret: enable_secret
+
+  - name: choose-ios-prompt
+    when_state: setup_selection_prompt
+    action: send
+    send: "0\r\n"
+
+  - name: terminate-autoinstall
+    when_state: terminate_autoinstall_prompt
+    action: send
+    send: "yes\r\n"
+
+  - name: wait-for-autoinstall-to-settle
+    when_state: autoinstall_running
+    action: wait
+    timeout_seconds: 10
+    next: step:wake-after-autoinstall
+
+  - name: wake-after-autoinstall
+    action: send
+    send: "\r\n"
+
+  - name: wait-for-console-noise-to-settle
+    when_state: console_noise_wait
+    action: wait
+    timeout_seconds: 10
+    next: step:wake-after-console-noise
+
+  - name: wake-after-console-noise
+    action: send
+    send: "\r\n"
+
+  - name: press-return
+    when_state: press_return
+    action: send
+    send: "\r\n"
+
+  - name: enter-enable-mode
+    when_state: user_exec_prompt
+    action: send
+    send: "enable\r\n"
+
+  - name: ready
+    when_state: privileged_exec_prompt
+    action: ready
+    mark_ready: true

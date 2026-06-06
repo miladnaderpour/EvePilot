@@ -1,17 +1,20 @@
-from evepilot.bootstrap.errors import BootstrapError, BootstrapStateError
-from evepilot.bootstrap.errors import bootstrap_unknown_state_error
+from evepilot.bootstrap.errors import BootstrapError, BootstrapFlowError
+from evepilot.bootstrap.errors import bootstrap_flow_invalid_error
 from evepilot.core.exceptions import EvePilotError
 
 
 def test_bootstrap_errors_inherit_from_evepilot_error() -> None:
     assert issubclass(BootstrapError, EvePilotError)
-    assert issubclass(BootstrapStateError, EvePilotError)
+    assert issubclass(BootstrapFlowError, EvePilotError)
 
 
-def test_bootstrap_unknown_state_error_shape() -> None:
-    error = bootstrap_unknown_state_error(sample="unrecognized")
+def test_bootstrap_flow_invalid_error_shape() -> None:
+    error = bootstrap_flow_invalid_error(
+        reason="missing_steps",
+        details={"flow_name": "example"},
+    )
 
-    assert isinstance(error, BootstrapStateError)
-    assert error.code == "bootstrap.unknown_state"
-    assert error.message == "Console state could not be detected."
-    assert error.details == {"sample": "unrecognized"}
+    assert isinstance(error, BootstrapFlowError)
+    assert error.code == "bootstrap.flow_invalid"
+    assert error.message == "Bootstrap flow definition is invalid."
+    assert error.details == {"reason": "missing_steps", "flow_name": "example"}

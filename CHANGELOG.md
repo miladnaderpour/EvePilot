@@ -32,13 +32,36 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Documentation for local and Linux service log file path conventions
 - Bootstrap design guideline and architecture decision for state-aware console
   automation
-- Initial bootstrap package scaffold with console state models, detector, and
-  domain errors
-- Bootstrap design refinement for flow-driven preparation with detector as a
-  diagnostic helper
+- Initial bootstrap package scaffold with flow models and domain errors
+- Bootstrap flow models, state matcher, validation, YAML loader, and generic
+  Cisco router built-in flow
+- Built-in bootstrap flow discovery from packaged YAML resource file names with
+  YAML `name` validation
+- Future flow resolution rule for local user-managed flow names
+- Async bootstrap flow runner skeleton with in-memory console session tests
+- Console wake retry handling for silent bootstrap console sessions
+- Async console transport design for Telnet now and SSH-port-forwarded console
+  access later
+- Async Telnet console session using `telnetlib3`
+- Bootstrap package layout split into `transport` and `preparation` subpackages
+- Bootstrap design refinement for flow-driven preparation
 - Bootstrap flow design rule for resumable flows with flow-defined state markers
 - Bootstrap flow-control design using step-level `next` rules
 - Milestone 0.2.0 bootstrap flow action surface
+- Bootstrap preparation variable resolution from `EVEPILOT_BOOTSTRAP_`
+  environment variables
+- Resource-first CLI command structure for node discovery commands
+- CLI `bootstrap prepare` command for running a preparation flow against a node
+  console
+- Buffered, retry-based console state detection for real router boot behavior
+- Raw TCP console transport and automatic transport selection for Dynamips nodes
+- CLI `bootstrap flow list`, `bootstrap flow show`, and `bootstrap flow export`
+  commands for built-in preparation flows
+- Built-in Cisco router flow support for enable password prompts after
+  first-boot secret setup
+- CLI detection timeout override with `--timeout` and
+  `--detect-console-timeout`
+- Debug logging for flow matching, selected states, and no-match diagnostics
 - Project documentation (CHANGELOG, CONTRIBUTING, SECURITY, NOTICE)
 - GitHub issue and pull request templates
 - Developer documentation (installation, quickstart, configuration)

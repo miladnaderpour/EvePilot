@@ -34,7 +34,7 @@ $env:EVEPILOT_EVE_NG_PASSWORD = "eve"
 ## 2. List Nodes in a Lab
 
 ```bash
-evepilot nodes --lab EIGRP/Basics.unl
+evepilot nodes all --lab EIGRP/Basics.unl
 ```
 
 Example output:
@@ -70,17 +70,21 @@ Example output:
 
 ---
 
-## 3. Get the Console Endpoint for a Node
+## 3. Get a Node by Name
 
 ```bash
-evepilot node-console --lab EIGRP/Basics.unl --node CSR-1
+evepilot nodes get --lab EIGRP/Basics.unl --node CSR-1
 ```
 
 Example output:
 
 ```json
 {
-  "node": "CSR-1",
+  "id": 1,
+  "name": "CSR-1",
+  "status": 2,
+  "type": "qemu",
+  "url": "telnet://10.1.2.3:32769",
   "console": {
     "protocol": "telnet",
     "host": "10.1.2.3",
@@ -92,15 +96,74 @@ Example output:
 You can pipe this output to other tools:
 
 ```bash
-evepilot node-console --lab EIGRP/Basics.unl --node CSR-1 | jq '.console.port'
+evepilot nodes get --lab EIGRP/Basics.unl --node CSR-1 | jq '.console.port'
 # 32769
 ```
 
 ---
 
-## 4. Connect to a Console (Phase 2)
+## 4. Prepare a Console
 
-> Console bootstrap is planned for Phase 2 and is not yet available.
+List available built-in preparation flows:
+
+```bash
+evepilot bootstrap flow list
+```
+
+Inspect a built-in flow:
+
+```bash
+evepilot bootstrap flow show built-in:cisco-router-first-boot
+```
+
+Export a built-in flow so you can customize it locally:
+
+```bash
+evepilot bootstrap flow export \
+  built-in:cisco-router-first-boot \
+  --output flows/cisco-router-first-boot.yaml
+```
+
+Run the built-in Cisco first-boot preparation flow:
+
+```bash
+evepilot bootstrap prepare \
+  --lab EIGRP/Basics.unl \
+  --node CSR-1 \
+  --flow built-in:cisco-router-first-boot
+```
+
+EvePilot discovers the node console endpoint from EVE-NG, selects the console
+transport, runs the selected preparation flow, and returns structured JSON.
+
+By default, `--transport auto` uses Telnet for most EVE-NG nodes and raw TCP for
+Dynamips nodes. You can override the transport if needed:
+
+```bash
+evepilot bootstrap prepare \
+  --lab EIGRP/Basics.unl \
+  --node R-20 \
+  --transport raw-tcp
+```
+
+Slow router images may need more time to print the next flow-defined console
+state. Increase the detection timeout with either option:
+
+```bash
+evepilot bootstrap prepare \
+  --lab EIGRP/Basics.unl \
+  --node C8000V-1 \
+  --timeout 240
+```
+
+`--detect-console-timeout` is the longer equivalent of `--timeout`.
+
+If the selected flow requires an enable secret or later needs the same value for
+an enable password prompt, provide it with an environment variable:
+
+```bash
+export EVEPILOT_BOOTSTRAP_ENABLE_SECRET=EvePilotLab123
+```
 
 ---
 

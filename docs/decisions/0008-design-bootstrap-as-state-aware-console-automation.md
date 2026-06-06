@@ -23,11 +23,11 @@ package, not as a blind command sender.
 The bootstrap package must separate:
 
 - Console transport
-- Console state detection
+- Flow-defined console state matching
 - Console preparation
 - Future workflow execution
 
-Milestone 0.2.0 will implement only console connection, state detection, and
+Milestone 0.2.0 will implement only console connection, flow state matching, and
 safe preparation. It will not implement a full workflow runner, YAML workflow
 engine, reload watcher, templates, or config-file bootstrap.
 
@@ -43,6 +43,5 @@ engine, reload watcher, templates, or config-file bootstrap.
 
 ## Refinement
 
-ADR 0009 refines this decision: console state detection remains useful, but
-bootstrap preparation must be driven by explicit user-provided or built-in
-flows, not by a generic detector acting as the main decision engine.
+ADR 0009 refines this decision: bootstrap preparation must be driven by explicit
+user-provided or built-in flows using flow-defined state markers.

@@ -4,7 +4,7 @@ import pytest
 
 from evepilot.core.config import Settings
 from evepilot.core.exceptions import EvePilotConfigError
-from evepilot.core.logging import parse_log_targets, setup_logging
+from evepilot.core.logging import TextLogFormatter, parse_log_targets, setup_logging
 
 
 def test_parse_log_targets_from_json() -> None:
@@ -50,6 +50,44 @@ def test_setup_logging_uses_simple_target() -> None:
     root = logging.getLogger()
     assert len(root.handlers) == 1
     assert root.handlers[0].level == logging.DEBUG
+
+
+def test_text_log_formatter_includes_utc_timestamp() -> None:
+    formatter = TextLogFormatter()
+    record = logging.LogRecord(
+        name="evepilot.test",
+        level=logging.INFO,
+        pathname=__file__,
+        lineno=1,
+        msg="test_message",
+        args=(),
+        exc_info=None,
+    )
+
+    output = formatter.format(record)
+
+    assert output.endswith(" INFO evepilot.test test_message")
+    assert "+00:00" in output.split(" ", maxsplit=1)[0]
+
+
+def test_text_log_formatter_includes_extra_fields() -> None:
+    formatter = TextLogFormatter()
+    record = logging.LogRecord(
+        name="evepilot.test",
+        level=logging.DEBUG,
+        pathname=__file__,
+        lineno=1,
+        msg="test_message",
+        args=(),
+        exc_info=None,
+    )
+    record.output = "Router#"
+    record.password = "secret"
+
+    output = formatter.format(record)
+
+    assert '"output": "Router#"' in output
+    assert '"password": "***REDACTED***"' in output
 
 
 def test_setup_logging_rejects_unsupported_output() -> None:

@@ -31,7 +31,7 @@ Before contributing, please:
 
 ### Prerequisites
 
-- Python 3.10 or later
+- Python 3.11 or later
 - A running EVE-NG instance (for integration testing)
 - `pip` and `venv`
 
@@ -51,8 +51,12 @@ source .venv/bin/activate
 # On Windows
 .venv\Scripts\activate
 
-# Install development dependencies
+# Install development dependencies and local packages
 pip install -e ".[dev]"
+pip install -e packages/evepilot-core
+pip install -e packages/evepilot-eve-ng
+pip install -e packages/evepilot-bootstrap
+pip install -e apps/cli
 ```
 
 ### Running Tests
@@ -64,11 +68,11 @@ pytest
 ### Linting and Formatting
 
 ```bash
-# Format code
-black .
-
-# Check linting
+# Check linting with Ruff
 ruff check .
+
+# Format code with Ruff
+ruff format .
 
 # Type checking
 mypy .
@@ -94,7 +98,8 @@ Branch from `dev` for all features and fixes. Target `dev` in your pull request.
 
 - Follow [PEP 8](https://peps.python.org/pep-0008/)
 - Use type hints on all public functions and methods
-- Use Pydantic models for structured data
+- Use dataclasses for internal domain models and Pydantic for configuration or
+  API boundaries
 - Keep API client logic separate from CLI logic
 - Return structured data (dicts or Pydantic models) from core functions - let the CLI layer format output
 - Write tests for new functionality using `pytest`

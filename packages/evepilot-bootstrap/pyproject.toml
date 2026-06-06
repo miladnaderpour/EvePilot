@@ -9,8 +9,13 @@ description = "Console bootstrap primitives for EvePilot."
 requires-python = ">=3.11"
 dependencies = [
     "evepilot-core==0.1.0",
+    "PyYAML>=6.0",
+    "telnetlib3>=2.0",
 ]
 
 [tool.setuptools.packages.find]
 where = ["src"]
 namespaces = true
+
+[tool.setuptools.package-data]
+"evepilot.bootstrap.preparation.flows" = ["*.yaml", "*.yml"]

@@ -8,6 +8,7 @@ version = "0.1.0"
 description = "Command-line interface for EvePilot."
 requires-python = ">=3.11"
 dependencies = [
+    "evepilot-bootstrap==0.1.0",
     "evepilot-core==0.1.0",
     "evepilot-eve-ng==0.1.0",
     "typer>=0.12",

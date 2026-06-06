@@ -56,6 +56,28 @@ apps/
 The CLI is the first application, but EvePilot should not be described as only a
 CLI tool.
 
+## CLI Command Model
+
+EvePilot CLI commands should use a resource-first structure:
+
+```text
+evepilot <resource> <action>
+```
+
+Examples:
+
+```text
+evepilot nodes all --lab EIGRP/Basics.unl
+evepilot nodes get --lab EIGRP/Basics.unl --node CSR-1
+evepilot topology get --lab EIGRP/Basics.unl
+evepilot bootstrap prepare --lab EIGRP/Basics.unl --node CSR-1
+```
+
+Prefer product resources such as `nodes`, `topology`, and `bootstrap` over
+provider-first commands such as `eve-ng get-nodes`. EVE-NG is the first
+provider, but the CLI should leave room for future providers such as CML, GNS3,
+or containerlab.
+
 ## Internal Packages
 
 Reusable logic should live under `packages/`.
@@ -409,29 +431,137 @@ automation package.
 
 Do not implement bootstrap as a blind command sender.
 
-Do not make the generic detector the main decision engine for preparing all
-router types.
-
 The bootstrap package must separate:
 
 - Console transport
-- Console state detection
+- Flow-defined console state matching
 - Console preparation
 - Future workflow execution
+
+Console transport belongs under `evepilot.bootstrap.transport`.
+
+Flow-driven console preparation belongs under `evepilot.bootstrap.preparation`.
+
+The root `evepilot.bootstrap` package should remain a public facade for common
+imports and future high-level bootstrap orchestration.
 
 Bootstrap preparation must be driven by explicit user-provided or built-in
 flows. Built-in flows may be shipped for common router images, but they are
 defaults and examples, not the only supported behavior.
 
+Built-in flows must be discovered from package resources. Do not maintain a
+manual hardcoded built-in flow registry in Python code. Each built-in flow's
+file name stem is its public `built-in:<name>` reference. The YAML `name` field
+must match the file name stem.
+
+Custom user flows must be loaded from file paths, usually under a local
+`flows/` directory. Users should not add custom flows to the built-in package
+resource directory.
+
+For Milestone 0.2.0, custom flows use explicit file paths. Later, EvePilot may
+support local flow-name resolution with this order:
+
+1. `built-in:<name>`
+2. Explicit existing file path
+3. `./flows/<name>`
+4. Error
+
+This would allow `--flow my-router-flow.yaml` to resolve to
+`./flows/my-router-flow.yaml` without changing built-in flow resolution.
+
+Users should be able to inspect available built-in flows before running them.
+The CLI should support:
+
+```text
+evepilot bootstrap flow list
+evepilot bootstrap flow show built-in:cisco-router-first-boot
+evepilot bootstrap flow export built-in:cisco-router-first-boot --output flows/cisco-router-first-boot.yaml
+```
+
+Flow export should preserve the original YAML text instead of regenerating YAML
+from dataclasses.
+
 Bootstrap flows must be resumable.
+
+Startup handling must wake a silent console before state matching. The runner
+should perform an initial read, send Enter for a small configured number of wake
+attempts when no output is received, and fail with a flow-run error if the
+console remains silent.
+
+Console output is stream-based. The flow runner must not assume that one read is
+one complete decision. It must buffer console chunks across reads, detect state
+from recent buffered output, and retry until a flow-defined state is found or a
+detection timeout is reached.
+
+The matcher must evaluate recent buffered output, not only individual lines.
+Many router prompts do not end with a newline, and async reads may split prompts
+across multiple chunks.
+
+Users must be able to override the console state detection timeout from the CLI.
+For bootstrap preparation, `--timeout` and `--detect-console-timeout` should set
+the same runtime value.
+
+### Async Console Transport
+
+`evepilot-bootstrap` must use an async console transport abstraction.
+
+The flow runner must depend on an `AsyncConsoleSession` protocol, not directly
+on Telnet or any other transport implementation.
+
+The console protocol should expose:
+
+```python
+class AsyncConsoleSession(Protocol):
+    async def connect(self) -> None: ...
+    async def read(self, timeout_seconds: float) -> str: ...
+    async def send(self, text: str) -> None: ...
+    async def close(self) -> None: ...
+```
+
+The flow runner should use:
+
+```python
+async def run_flow(
+    flow: FlowDefinition,
+    session: AsyncConsoleSession,
+) -> FlowRunResult:
+    ...
+```
+
+Milestone 0.2.0 should implement:
+
+- `AsyncConsoleSession`
+- `TelnetConsoleSession`
+- `RawTcpConsoleSession`
+- Async `run_flow()`
+
+`TelnetConsoleSession` should use `telnetlib3`.
+
+`RawTcpConsoleSession` should use plain TCP without Telnet negotiation. It is
+needed for EVE-NG node types that expose console ports as raw serial streams,
+such as Dynamips.
+
+The CLI should support `--transport auto`, `--transport telnet`, and
+`--transport raw-tcp`. Automatic transport selection should use raw TCP for
+Dynamips nodes and Telnet for other node types unless a user explicitly
+overrides the transport.
+
+Future transports, such as SSH-port-forwarded console access, must be added by
+implementing the same session protocol instead of changing the flow runner.
+
+SSH forwarding is not part of Milestone 0.2.0.
 
 A flow file must define state markers using plain string patterns and/or regex
 patterns. EvePilot must use these flow-defined markers to detect the current
 console state before executing a step.
 
+Matcher debug logs should record detection start, plain or regex matches,
+no-match diagnostics, ambiguous matches, and the final selected state. Secret
+values must never be logged.
+
 The flow runner must not blindly start from the first step every time. It should
 detect the current state, find the matching step for that state, execute it, then
-follow the step's `next` rule.
+follow the step's `next` rule when one is explicitly defined.
 
 This allows EvePilot to continue correctly even if the user manually answered an
 earlier prompt before running the flow.
@@ -439,13 +569,16 @@ earlier prompt before running the flow.
 Supported `next` values for Milestone 0.2.0:
 
 - `detect`: read console output again, detect state, and execute the matching
-  step.
-- `next`: continue to the next step in order.
+  step. This is useful when a flow author wants the detect behavior to be
+  explicit.
 - `stop`: stop the flow.
 - `step:<step-name>`: jump to a specific named step.
 
 `skip_when_state` may be added later, but for Milestone 0.2.0 the preferred
 design is state-driven matching through `when_state`.
+
+Omitting `next` means the runner should detect the current state again after the
+step completes. The `ready` action is terminal and must not define `next`.
 
 Flow instructions should describe concrete actions such as:
 
@@ -459,13 +592,34 @@ Flow instructions should describe concrete actions such as:
 Actions such as `reload_wait`, `branch`, `loop`, `render_template`,
 `set_variable`, and config push are intentionally deferred to later milestones.
 
-The generic detector may remain as a helper for debugging and validation.
+Flow variables should resolve from environment variables with the
+`EVEPILOT_BOOTSTRAP_` prefix:
+
+```text
+<flow-variable-name> -> EVEPILOT_BOOTSTRAP_<FLOW_VARIABLE_NAME_UPPER>
+```
+
+Example:
+
+```text
+enable_secret -> EVEPILOT_BOOTSTRAP_ENABLE_SECRET
+```
+
+Secret variable values must not be logged.
 
 Initial flow models should be shaped around:
 
 - `FlowStateMarker`: how to recognize a named state.
 - `FlowStep`: what to do when that state is detected.
 - `next`: how the runner should continue after a step executes.
+
+`FlowStep.optional` is reserved in Milestone 0.2.0. Flows may parse it, but the
+runner must not rely on optional-step behavior until it is implemented and
+tested.
+
+`FlowRunResult.output_sample` currently stores the latest output returned by the
+console. A later milestone should cap this value to a bounded sample before
+larger command output or config push workflows are added.
 
 Milestone 0.2.0 should focus on console connection, flow models/loading, a small
 flow runner, and safe preparation. It should not implement full config push,

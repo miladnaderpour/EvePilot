@@ -1,405 +1,223 @@
 # EvePilot
 
-**EvePilot** is an automation toolkit for **EVE-NG** labs.
+![Python](https://img.shields.io/badge/python-3.11%2B-blue)
+![License](https://img.shields.io/badge/license-Apache--2.0-green)
+![Status](https://img.shields.io/badge/status-early%20development-orange)
+![Platform](https://img.shields.io/badge/platform-EVE--NG-purple)
 
-The goal of EvePilot is to help network engineers, NetDevOps practitioners, and certification candidates automate EVE-NG lab environments for lab discovery, node orchestration, console bootstrap, monitoring, and CI/CD-driven network automation workflows.
+**Flow-driven automation for EVE-NG labs.**
 
-EvePilot starts with a simple but powerful problem:
+EvePilot helps network engineers, NetDevOps practitioners, and certification
+candidates automate EVE-NG lab discovery and day-zero console preparation.
 
-> How can we programmatically discover EVE-NG lab nodes and their console endpoints so routers and switches can be bootstrapped automatically before SSH or management access exists?
+It discovers lab nodes through the EVE-NG API, extracts console endpoints, and
+runs state-aware preparation flows before SSH or management access exists.
 
-Over time, EvePilot is intended to grow into a broader automation platform for EVE-NG environments.
+> EvePilot is in early development. Current focus: EVE-NG node discovery and
+> flow-driven console preparation.
 
----
+## ✨ Capabilities
 
-## Vision
+- Authenticate to the EVE-NG API.
+- List nodes in an EVE-NG lab.
+- Get a node by name and return its console endpoint.
+- Run flow-driven console preparation from YAML.
+- Use Telnet or raw TCP console transport.
+- List, show, and export built-in bootstrap flows.
+- Return structured JSON for scripts and automation tools.
 
-EVE-NG is a powerful platform for network labs, but many workflows are still manual:
+## ✅ Prerequisites
 
-- Opening node consoles manually
-- Finding console ports manually
-- Starting and stopping nodes manually
-- Applying day-zero configuration manually
-- Rebuilding labs manually
-- Validating labs manually
-- Integrating labs with CI/CD pipelines manually
+- Python 3.11 or later.
+- A running EVE-NG instance.
+- Network access from your workstation to the EVE-NG API.
+- Console port access from your workstation, unless a future SSH-forwarded
+  transport is used.
 
-EvePilot aims to reduce that manual work.
+## 🚀 Quickstart
 
-The long-term vision is to make EVE-NG labs easier to control, automate, monitor, validate, and reuse as part of modern NetDevOps workflows.
-
----
-
-## Planned Capabilities
-
-EvePilot is designed to grow in phases.
-
-### Phase 1 - EVE-NG API Discovery
-
-Initial focus:
-
-- Authenticate to the EVE-NG API
-- List labs
-- List nodes in a lab
-- Retrieve node metadata
-- Retrieve console URLs and ports
-- Map node names to console endpoints
-- Return structured JSON output for automation tools
-
-Example use case:
-
-```text
-Node name: CSR-1
-Lab: EIGRP/Basics.unl
-
-Result:
-telnet://10.1.2.3:32769
-```
-
----
-
-### Phase 2 - Console Bootstrap
-
-After console endpoint discovery, EvePilot will support day-zero device onboarding.
-
-Planned features:
-
-- Connect to router/switch console
-- Detect initial prompts
-- Handle initial configuration dialog
-- Push bootstrap configuration
-- Configure management IP
-- Enable SSH
-- Save configuration
-- Wait until the device becomes reachable over SSH
-
-This is useful because a new router in an EVE-NG lab may not have any management IP yet. In that situation, normal automation tools such as Ansible cannot connect over SSH. The only available access method is the console.
-
----
-
-### Phase 3 - Lab Lifecycle Automation
-
-Future lab operations may include:
-
-- Start lab
-- Stop lab
-- Start node
-- Stop node
-- Wipe node
-- Reload node
-- Export node configuration
-- Import startup configuration
-- Reset lab state
-- Prepare lab before automated testing
-
----
-
-### Phase 4 - CI/CD Integration
-
-EvePilot is intended to support CI/CD-driven network lab workflows.
-
-Possible integrations:
-
-- GitHub Actions
-- GitLab CI
-- Jenkins
-- Ansible Automation Platform
-- Custom pipeline runners
-
-Example future workflow:
-
-```text
-Git push
-  |
-  v
-CI/CD pipeline starts EVE-NG lab
-  |
-  v
-EvePilot discovers nodes
-  |
-  v
-EvePilot bootstraps devices
-  |
-  v
-Ansible applies full configuration
-  |
-  v
-Tests validate routing, reachability, and services
-  |
-  v
-Pipeline reports success or failure
-```
-
----
-
-### Phase 5 - Monitoring and Observability
-
-Future monitoring features may include:
-
-- EVE-NG host health
-- CPU and memory usage
-- Node status
-- Running/stopped node inventory
-- Console availability
-- Lab resource usage
-- API health checks
-- Integration with monitoring stacks
-
----
-
-### Phase 6 - Lab Generation and UI
-
-Long-term ideas:
-
-- Terraform-driven lab generation
-- API-based topology creation
-- Reusable lab templates
-- Web UI
-- Node control panel
-- Automation job history
-
----
-
-## Why EvePilot?
-
-EvePilot is not intended to replace EVE-NG.
-
-It is intended to act as an automation layer around EVE-NG.
-
-The main goals are:
-
-- Make EVE-NG easier to automate
-- Support day-zero device bootstrap
-- Help integrate network labs with CI/CD workflows
-- Reduce repetitive manual lab tasks
-- Create a reusable framework for lab orchestration
-- Support network automation learning and testing
-
----
-
-## First Milestone
-
-The first working version will focus on API-based node discovery.
-
-Minimum target features:
-
-- Login to EVE-NG API
-- Query nodes from a specific lab
-- Find a node by name
-- Extract console URL
-- Parse console host and port
-- Return clean JSON output
-
-Example command idea:
+Install EvePilot in editable mode from the repository:
 
 ```bash
-evepilot nodes --lab EIGRP/Basics.unl
+git clone https://github.com/milad-naderpour/evepilot.git
+cd evepilot
+python -m venv .venv
+source .venv/bin/activate
+pip install -e packages/evepilot-core
+pip install -e packages/evepilot-eve-ng
+pip install -e packages/evepilot-bootstrap
+pip install -e apps/cli
 ```
 
-Example output:
+On Windows, activate the virtual environment with:
 
-```json
-[
-  {
-    "id": 1,
-    "name": "CSR-1",
-    "status": 2,
-    "type": "qemu",
-    "url": "telnet://10.1.2.3:32769",
-    "console": {
-      "protocol": "telnet",
-      "host": "10.1.2.3",
-      "port": 32769
-    }
-  }
-]
+```powershell
+.venv\Scripts\activate
 ```
 
-Example command idea:
+> Multi-package install is explicit for now. A workspace installer
+> (`pip install -e ".[all]"`) is planned.
+
+Configure EVE-NG access:
 
 ```bash
-evepilot node-console --lab EIGRP/Basics.unl --node CSR-1
+export EVEPILOT_EVE_NG_URL=http://10.1.2.3
+export EVEPILOT_EVE_NG_USERNAME=admin
+export EVEPILOT_EVE_NG_PASSWORD=eve
 ```
 
-Example output:
+List nodes in a lab:
 
-```json
-{
-  "node": "CSR-1",
-  "console": {
-    "protocol": "telnet",
-    "host": "10.1.2.3",
-    "port": 32769
-  }
-}
+```bash
+evepilot nodes all --lab EIGRP/Basics.unl
 ```
 
----
+Get one node and its console endpoint:
 
-## Current Scope
+```bash
+evepilot nodes get --lab EIGRP/Basics.unl --node CSR-1
+```
 
-The project is currently in the early design and implementation phase.
+List built-in preparation flows:
 
-The first implementation will focus on:
+```bash
+evepilot bootstrap flow list
+```
 
-- Python-based core logic
-- Clean project structure
-- EVE-NG API client
-- Typed data models
-- Console URL parsing
-- JSON output
-- Testable components
+Prepare a router console:
 
-The CLI will be the first interface, but EvePilot should be understood as an automation toolkit, not only as a CLI tool.
+```bash
+evepilot bootstrap prepare \
+  --lab EIGRP/Basics.unl \
+  --node CSR-1 \
+  --flow built-in:cisco-router-first-boot
+```
 
----
+For slow first-boot images, increase the detection timeout:
 
-## Possible Future Architecture
+```bash
+evepilot bootstrap prepare \
+  --lab EIGRP/Basics.unl \
+  --node C8000V-1 \
+  --timeout 240
+```
+
+For full setup details, see:
+
+- [Installation](docs/installation.md)
+- [Quickstart](docs/quickstart.md)
+- [Configuration](docs/configuration.md)
+
+## 🧠 Why EvePilot?
+
+EVE-NG is powerful, but first-boot lab automation still tends to start with
+manual console work: finding dynamic ports, opening consoles one by one, and
+answering setup prompts before SSH exists.
+
+EvePilot turns that fragile day-zero phase into a repeatable flow. It uses the
+EVE-NG API as the source of truth, connects to the discovered console endpoint,
+and runs explicit YAML preparation steps that can be inspected, exported, and
+customized.
+
+The result is a lab workflow that is easier to repeat for practice, demos,
+testing, and future CI/CD automation.
+
+## 🧩 Architecture
+
+```mermaid
+flowchart LR
+    cli["EvePilot CLI / Core"]
+    api["EVE-NG API"]
+    nodes["Lab Nodes"]
+    ports["Console Endpoints"]
+    runner["YAML Flow Runner"]
+    device["Device\n(Day-Zero Console)"]
+
+    cli --> api
+    api --> nodes
+    nodes --> ports
+    cli --> runner
+    ports --> runner
+    runner --> device
+```
+
+Preparation flows are YAML files. A flow defines console states, prompt markers,
+and actions such as sending `no`, pressing Return, entering enable mode, or
+waiting for a prompt.
+
+Built-in flows can be inspected and exported:
+
+```bash
+evepilot bootstrap flow show built-in:cisco-router-first-boot
+evepilot bootstrap flow export \
+  built-in:cisco-router-first-boot \
+  --output flows/cisco-router-first-boot.yaml
+```
+
+## 📦 Project Structure
 
 ```text
-+-------------------+
-|   CI/CD Pipeline  |
-| GitHub/Jenkins    |
-+---------+---------+
-          |
-          v
-+-------------------+
-|     EvePilot      |
-| Automation Layer  |
-+---------+---------+
-          |
-          v
-+-------------------+
-|     EVE-NG API    |
-| Labs / Nodes      |
-+---------+---------+
-          |
-          v
-+-------------------+
-| Network Devices   |
-| Console / SSH     |
-+-------------------+
+EvePilot/
+|-- apps/
+|   `-- cli/
+|-- packages/
+|   |-- evepilot-core/
+|   |-- evepilot-eve-ng/
+|   `-- evepilot-bootstrap/
+|-- docs/
+|-- tests/
+|-- README.md
+`-- pyproject.toml
 ```
 
-Future architecture may include:
+## 🗺️ Roadmap
 
-```text
-CLI
-API service
-Web UI
-Scheduler
-Monitoring collector
-Lab builder
-Bootstrap engine
-CI/CD integration module
-```
+Current work:
 
----
+- EVE-NG node discovery.
+- Console endpoint parsing.
+- Flow-driven console preparation.
+- Built-in flow inspection and export.
 
-## Example Use Cases
+Planned next areas:
 
-### 1. Discover Console Port
+- Simple bootstrap command files.
+- Multi-stage bootstrap workflows with reload support.
+- Lab lifecycle operations.
+- API service and web UI.
+- Monitoring and CI/CD integrations.
 
-Find the console endpoint of a router by name:
+See the full [roadmap](docs/roadmap.md).
 
-```text
-Input:
-  lab = EIGRP/Basics.unl
-  node = CSR-1
+## 📚 Documentation
 
-Output:
-  telnet://10.1.2.3:32769
-```
+- [Vision](docs/vision.md)
+- [Roadmap](docs/roadmap.md)
+- [Architecture overview](docs/architecture/overview.md)
+- [Project guidelines](docs/project-guidelines.md)
+- [Architecture decisions](docs/decisions/README.md)
+- [EVE-NG API research](docs/research/eve-ng-api.md)
+- [Console discovery research](docs/research/console-discovery.md)
 
----
+## 🤝 Contributing
 
-### 2. Bootstrap a New Router
+Contributions are welcome while the project is still taking shape. Please read
+the [contribution guide](CONTRIBUTING.md) before opening a pull request.
 
-A new router has no management IP.
+## 🔐 Security
 
-EvePilot discovers the console port, connects to the console, pushes bootstrap configuration, enables SSH, and prepares the device for normal automation.
+EvePilot handles lab credentials and console sessions. Do not commit real
+credentials, `.env` files, or private lab details. See the
+[security policy](SECURITY.md).
 
----
+## 📄 License
 
-### 3. Prepare a Lab for Ansible
+This project is licensed under the [Apache License 2.0](LICENSE).
 
-EvePilot performs day-zero bootstrap.
+## ⚠️ Disclaimer
 
-Then Ansible connects over SSH and applies the full configuration.
+EvePilot is an independent project and is not affiliated with, endorsed by, or
+sponsored by EVE-NG or any vendor.
 
----
-
-### 4. Use EVE-NG in CI/CD
-
-A pipeline starts a lab, applies configurations, runs validation tests, and reports the result automatically.
-
----
-
-## Technology Stack
-
-Initial stack:
-
-- Python
-- EVE-NG API
-- Requests / HTTP client
-- Pydantic models
-- Typer or Click for CLI
-- Pytest for testing
-
-Possible future stack:
-
-- FastAPI
-- Vue.js
-- PostgreSQL
-- Terraform integration
-- Ansible integration
-- Prometheus / Grafana integration
-
----
-
-## Development Principles
-
-EvePilot should follow these principles:
-
-- Keep the core logic clean and testable
-- Separate API logic from CLI logic
-- Use typed models where possible
-- Return structured JSON for automation
-- Avoid hardcoded console ports
-- Treat EVE-NG API as the primary source of truth
-- Use Linux process inspection only as fallback/debugging
-- Build small features first, but keep the architecture open for future growth
-
----
-
-## License
-
-This project is licensed under the **Apache License 2.0**.
-
----
-
-## Project Status
-
-Early development.
-
-Current focus:
-
-```text
-Lab node discovery
-Console URL and port extraction
-Structured JSON output
-```
-
----
-
-## Author
-
-Created by **Milad Naderpour** as a personal NetDevOps project for EVE-NG automation, CI/CD lab workflows, and network engineering practice.
-
----
-
-## Disclaimer
-
-EvePilot is an independent personal project and is not affiliated with, endorsed by, or sponsored by EVE-NG or any vendor.
-
-Use it carefully in lab environments. Always validate automation before applying it to important systems.
+Use it carefully in lab environments. Always validate automation before applying
+it to important systems.

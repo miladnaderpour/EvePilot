@@ -11,7 +11,8 @@
 ## Install from Source (Development)
 
 EvePilot currently uses a monorepo layout with editable local packages. Install
-the core package, EVE-NG integration package, and CLI app from the repository:
+the core package, EVE-NG integration package, bootstrap package, and CLI app
+from the repository:
 
 ```bash
 # Clone the repository
@@ -30,7 +31,7 @@ source .venv/bin/activate
 .venv\Scripts\activate
 
 # Install EvePilot packages in editable mode
-pip install -e packages/evepilot-core -e packages/evepilot-eve-ng -e apps/cli
+pip install -e packages/evepilot-core -e packages/evepilot-eve-ng -e packages/evepilot-bootstrap -e apps/cli
 ```
 
 After installation, verify the CLI works:
@@ -47,7 +48,7 @@ If you plan to contribute or run tests, install the editable packages and test
 tools:
 
 ```bash
-pip install -e packages/evepilot-core -e packages/evepilot-eve-ng -e apps/cli pytest ruff mypy
+pip install -e packages/evepilot-core -e packages/evepilot-eve-ng -e packages/evepilot-bootstrap -e apps/cli pytest ruff mypy
 ```
 
 This installs the CLI and development tools such as `pytest`, `ruff`, and
@@ -61,7 +62,7 @@ When new changes are available:
 
 ```bash
 git pull
-pip install -e packages/evepilot-core -e packages/evepilot-eve-ng -e apps/cli
+pip install -e packages/evepilot-core -e packages/evepilot-eve-ng -e packages/evepilot-bootstrap -e apps/cli
 ```
 
 ---
@@ -69,7 +70,7 @@ pip install -e packages/evepilot-core -e packages/evepilot-eve-ng -e apps/cli
 ## Uninstalling
 
 ```bash
-pip uninstall evepilot-cli evepilot-eve-ng evepilot-core
+pip uninstall evepilot-cli evepilot-bootstrap evepilot-eve-ng evepilot-core
 ```
 
 ---
