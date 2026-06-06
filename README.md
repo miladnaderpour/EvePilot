@@ -1,5 +1,9 @@
 <p align="center">
-  <img src="docs/assets/evepilot-logo.svg" alt="EvePilot" width="320">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/assets/evepilot-logo-dark.svg">
+    <source media="(prefers-color-scheme: light)" srcset="docs/assets/evepilot-logo.svg">
+    <img src="docs/assets/evepilot-logo.svg" alt="EvePilot" width="320">
+  </picture>
 </p>
 
 <p align="center">
