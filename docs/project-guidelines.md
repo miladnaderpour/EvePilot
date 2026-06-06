@@ -629,6 +629,65 @@ preparation-flow shape needed now.
 Future reload workflows must be supported by extending the same primitives, not
 by rewriting them.
 
+## Console Config Apply Boundary
+
+EvePilot applies already-rendered plain text configuration files through the
+console.
+
+Use `apply` naming for this feature, not `push` naming. The word `push` may
+imply future SSH, NETCONF, RESTCONF, or API workflows. Milestone 0.3.0 is
+console-based config apply.
+
+Template rendering and variable resolution belong to upstream tools such as
+Ansible. EvePilot must not become a Jinja2 renderer or inventory manager.
+
+Suggested internal package:
+
+```text
+evepilot.bootstrap.config_apply
+```
+
+Suggested internal names:
+
+- `ConfigApplyResult`
+- `ConfigCommandResult`
+- `load_config_lines()`
+- `apply_config_lines()`
+
+Avoid names such as:
+
+- `config_push`
+- `push_config`
+- `ConfigPushResult`
+
+For Milestone 0.3.0, config apply should:
+
+- Prepare the console using the selected bootstrap preparation flow.
+- Read a plain text config file.
+- Skip blank lines and lines whose stripped value starts with `!` by default.
+- Send the config line by line.
+- Return a structured JSON result.
+- Stop on timeout or transport failure.
+
+For Milestone 0.3.0, config apply should not implement:
+
+- Jinja2 rendering.
+- Ansible inventory handling.
+- Multi-stage reload workflows.
+- Advanced router error parsing.
+- SSH handoff.
+- Comment-handling CLI flags such as `--keep-comments` or
+  `--no-skip-comments`.
+
+CLI output should remain JSON-first so Ansible, CI/CD jobs, and command-line
+tools such as `jq` can consume it reliably.
+
+Lines beginning with `#` may be handled as generated comments in a later
+milestone, but they should not be filtered by default in Milestone 0.3.0.
+
+Config apply results may include `duration_seconds` if it is cheap to collect,
+but duration reporting is optional for the first implementation.
+
 ## Service Installer Scripts
 
 Service components should be installable through provided scripts. Users should

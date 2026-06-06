@@ -1,11 +1,21 @@
-# EvePilot
+<p align="center">
+  <img src="docs/assets/evepilot-logo.svg" alt="EvePilot" width="320">
+</p>
 
-![Python](https://img.shields.io/badge/python-3.11%2B-blue)
-![License](https://img.shields.io/badge/license-Apache--2.0-green)
-![Status](https://img.shields.io/badge/status-early%20development-orange)
-![Platform](https://img.shields.io/badge/platform-EVE--NG-purple)
+<p align="center">
+  <strong>Flow-driven automation for EVE-NG network labs.</strong>
+</p>
 
-**Flow-driven automation for EVE-NG labs.**
+<p align="center">
+  <a href="https://evepilot.io">evepilot.io</a>
+</p>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/python-3.11%2B-blue" alt="Python 3.11+">
+  <img src="https://img.shields.io/badge/license-Apache--2.0-green" alt="Apache 2.0 license">
+  <img src="https://img.shields.io/badge/status-early%20development-orange" alt="Early development">
+  <img src="https://img.shields.io/badge/platform-EVE--NG-purple" alt="EVE-NG platform">
+</p>
 
 EvePilot helps network engineers, NetDevOps practitioners, and certification
 candidates automate EVE-NG lab discovery and day-zero console preparation.
@@ -193,9 +203,11 @@ See the full [roadmap](docs/roadmap.md).
 
 - [Vision](docs/vision.md)
 - [Roadmap](docs/roadmap.md)
+- [Brand](docs/brand.md)
 - [Architecture overview](docs/architecture/overview.md)
 - [Project guidelines](docs/project-guidelines.md)
 - [Architecture decisions](docs/decisions/README.md)
+- [Config apply example](docs/examples/config-apply.md)
 - [EVE-NG API research](docs/research/eve-ng-api.md)
 - [Console discovery research](docs/research/console-discovery.md)
 

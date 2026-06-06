@@ -62,6 +62,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - CLI detection timeout override with `--timeout` and
   `--detect-console-timeout`
 - Debug logging for flow matching, selected states, and no-match diagnostics
+- Architecture decision for Milestone 0.3.0 rendered text config apply
+- Example rendered Cisco IOS XE config for future console config apply
+- Project identity update with `evepilot.io`, brand assets, and brand guide
 - Project documentation (CHANGELOG, CONTRIBUTING, SECURITY, NOTICE)
 - GitHub issue and pull request templates
 - Developer documentation (installation, quickstart, configuration)
