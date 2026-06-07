@@ -9,6 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+---
+
+## [0.3.0] - 2026-06-07
+
+EvePilot 0.3.0 is an early preview release for lab testing. CLI commands and
+JSON schemas may still change before version 1.0.0.
+
 ### Added
 
 - Initial project structure and repository setup
@@ -68,6 +75,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Project documentation (CHANGELOG, CONTRIBUTING, SECURITY, NOTICE)
 - GitHub issue and pull request templates
 - Developer documentation (installation, quickstart, configuration)
+
+### Changed
+
+- Move CLI workflow logic into package service layers for EVE-NG and bootstrap
+  domains.
+- Wrap CLI JSON output in shared `ServiceResult` envelopes.
+- Add `--format json` and `--format text` support for CLI commands.
+- Keep config apply vendor-neutral and defer platform-specific error detection
+  to future flow/profile-driven BYOE error patterns.
+- Simplify public config apply output by hiding per-command command results by
+  default.
+- Submit flow secrets with Enter automatically when the environment value has no
+  newline.
+
+### Preview Scope
+
+Users can test a complete early workflow:
+
+1. Connect to EVE-NG.
+2. List lab nodes.
+3. Get a node console endpoint.
+4. Prepare a router console.
+5. Apply already-rendered plain text config.
+6. Receive JSON or text CLI output.
 
 ---
 

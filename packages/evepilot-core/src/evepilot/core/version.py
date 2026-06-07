@@ -3,7 +3,7 @@
 import os
 
 APP_NAME = "EvePilot"
-APP_VERSION = "0.1.0"
+APP_VERSION = "0.3.0"
 API_VERSION = "1"
 
 RELEASE_CHANNEL = os.getenv("EVEPILOT_RELEASE_CHANNEL", "dev")

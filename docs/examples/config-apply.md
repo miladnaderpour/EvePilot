@@ -44,18 +44,52 @@ that behavior.
 The CLI should return structured JSON so Ansible, CI/CD jobs, and tools such as
 `jq` can consume the result.
 
+JSON is the default output format. Text output is available for terminal
+inspection:
+
+```bash
+evepilot bootstrap apply \
+  --lab EIGRP/Basics.unl \
+  --node CSR-1 \
+  --file examples/configs/cisco-iosxe-basic.txt \
+  --format text
+```
+
+The top-level CLI result may use `duration_seconds` for the full command
+runtime. The internal config-apply result should use `apply_duration_seconds`
+for the line-by-line config application time only.
+
 Example planned result shape:
 
 ```json
 {
-  "node": "CSR-1",
-  "file": "examples/configs/cisco-iosxe-basic.txt",
-  "prepared": true,
-  "commands_total": 38,
-  "commands_sent": 38,
-  "final_state": "privileged_exec_prompt",
-  "ready": true,
-  "duration_seconds": 12.4,
-  "errors": []
+  "ok": true,
+  "code": "bootstrap.apply.completed",
+  "data": {
+    "node": "CSR-1",
+    "config_path": "examples/configs/cisco-iosxe-basic.txt",
+    "prepared": true,
+    "preparation": {
+      "flow_name": "cisco-router-first-boot",
+      "final_state": "privileged_exec_prompt",
+      "ready": true
+    },
+    "config_apply": {
+      "commands_total": 38,
+      "commands_sent": 38,
+      "ready": false,
+      "final_state": null,
+      "apply_duration_seconds": 4.2
+    },
+    "duration_seconds": 12.4
+  },
+  "error": null,
+  "meta": {
+    "service": "EvePilot",
+    "version": "0.3.0",
+    "timestamp": "2026-06-07T12:00:00+00:00",
+    "duration_seconds": 12.4,
+    "request_id": null
+  }
 }
 ```

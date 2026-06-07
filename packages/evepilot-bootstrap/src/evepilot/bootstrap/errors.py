@@ -19,6 +19,14 @@ class BootstrapConsoleError(BootstrapError):
     """Bootstrap console transport error."""
 
 
+class BootstrapConfigApplyError(BootstrapError):
+    """Bootstrap config apply error."""
+
+
+class BootstrapFlowServiceError(BootstrapError):
+    """Bootstrap flow service error."""
+
+
 def bootstrap_flow_invalid_error(
     *,
     reason: str,
@@ -81,5 +89,33 @@ def bootstrap_console_error(
     return BootstrapConsoleError(
         code="bootstrap.console_failed",
         message="Bootstrap console transport failed.",
+        details={"reason": reason, **(details or {})},
+    )
+
+
+def bootstrap_config_apply_error(
+    *,
+    reason: str,
+    details: dict[str, object] | None = None,
+) -> BootstrapConfigApplyError:
+    """Build the error used when config apply input cannot be processed."""
+
+    return BootstrapConfigApplyError(
+        code="bootstrap.config_apply_failed",
+        message="Bootstrap config apply failed.",
+        details={"reason": reason, **(details or {})},
+    )
+
+
+def bootstrap_flow_service_error(
+    *,
+    reason: str,
+    details: dict[str, object] | None = None,
+) -> BootstrapFlowServiceError:
+    """Build the error used when a flow service action cannot be processed."""
+
+    return BootstrapFlowServiceError(
+        code="bootstrap.flow_service_failed",
+        message="Bootstrap flow service action failed.",
         details={"reason": reason, **(details or {})},
     )

@@ -17,7 +17,7 @@
 <p align="center">
   <img src="https://img.shields.io/badge/python-3.11%2B-blue" alt="Python 3.11+">
   <img src="https://img.shields.io/badge/license-Apache--2.0-green" alt="Apache 2.0 license">
-  <img src="https://img.shields.io/badge/status-early%20development-orange" alt="Early development">
+  <img src="https://img.shields.io/badge/status-early%20preview-orange" alt="Early preview">
   <img src="https://img.shields.io/badge/platform-EVE--NG-purple" alt="EVE-NG platform">
 </p>
 
@@ -27,8 +27,8 @@ candidates automate EVE-NG lab discovery and day-zero console preparation.
 It discovers lab nodes through the EVE-NG API, extracts console endpoints, and
 runs state-aware preparation flows before SSH or management access exists.
 
-> EvePilot is in early development. Current focus: EVE-NG node discovery and
-> flow-driven console preparation.
+> EvePilot is currently in early preview. The project is usable for lab testing,
+> but CLI commands and JSON schemas may change before version 1.0.0.
 
 ## ✨ Capabilities
 
@@ -36,9 +36,10 @@ runs state-aware preparation flows before SSH or management access exists.
 - List nodes in an EVE-NG lab.
 - Get a node by name and return its console endpoint.
 - Run flow-driven console preparation from YAML.
+- Apply already-rendered plain text configuration through the console.
 - Use Telnet or raw TCP console transport.
 - List, show, and export built-in bootstrap flows.
-- Return structured JSON for scripts and automation tools.
+- Return structured JSON or text output for scripts and automation tools.
 
 ## ✅ Prerequisites
 

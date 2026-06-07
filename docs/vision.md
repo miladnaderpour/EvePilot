@@ -23,12 +23,20 @@ around EVE-NG.
 
 ## Direction
 
-The first priority is API-based discovery of labs, nodes, and console endpoints.
-This gives automation tools a reliable way to find devices before SSH or
-management access exists.
+The first working direction is a vertical slice for lab discovery and console
+automation before SSH or management access exists.
 
-Future capabilities may include console bootstrap, lab lifecycle automation,
-monitoring, CI/CD integrations, topology generation, and a web UI.
+Current capabilities include:
+
+- API-based discovery of EVE-NG lab nodes.
+- Console endpoint extraction.
+- Flow-driven console preparation.
+- Rendered text config apply through a prepared console.
+- Structured CLI output for automation tools.
+
+Future capabilities may include richer bootstrap workflows, reload-aware
+automation, lab lifecycle automation, monitoring, CI/CD integrations, topology
+generation, an API service, and a web UI.
 
 ## Principles
 

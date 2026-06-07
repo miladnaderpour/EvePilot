@@ -202,6 +202,21 @@ def test_run_flow_uses_variables_for_send_secret() -> None:
         run_flow(
             _secret_flow(),
             console,
+            variables={"enable_secret": "EvePilotLab123"},
+        )
+    )
+
+    assert console.sent == ["EvePilotLab123\r\n"]
+    assert result.ready is True
+
+
+def test_run_flow_preserves_secret_value_with_explicit_line_ending() -> None:
+    console = InMemoryConsoleSession(["Enter enable secret:", "Router#"])
+
+    result = asyncio.run(
+        run_flow(
+            _secret_flow(),
+            console,
             variables={"enable_secret": "EvePilotLab123\n"},
         )
     )
@@ -231,12 +246,12 @@ def test_run_flow_uses_enable_secret_for_password_prompt() -> None:
 
 
 def test_run_flow_resolves_flow_variables_from_environment(monkeypatch: pytest.MonkeyPatch) -> None:
-    monkeypatch.setenv("EVEPILOT_BOOTSTRAP_ENABLE_SECRET", "EvePilotLab123\n")
+    monkeypatch.setenv("EVEPILOT_BOOTSTRAP_ENABLE_SECRET", "EvePilotLab123")
     console = InMemoryConsoleSession(["Enter enable secret:", "Router#"])
 
     result = asyncio.run(run_flow(_secret_flow_with_variable(), console))
 
-    assert console.sent == ["EvePilotLab123\n"]
+    assert console.sent == ["EvePilotLab123\r\n"]
     assert result.ready is True
 
 

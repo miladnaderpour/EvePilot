@@ -17,7 +17,7 @@ while the project is in early development.
 - Connect to router and switch consoles.
 - Detect initial prompts.
 - Handle initial configuration dialogs.
-- Push bootstrap configuration.
+- Apply rendered configuration through the console.
 - Enable management access such as SSH.
 - Wait for devices to become reachable.
 

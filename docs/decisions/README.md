@@ -20,3 +20,4 @@ context, decision, and consequences.
 | [0008](0008-design-bootstrap-as-state-aware-console-automation.md) | Accepted, refined by 0009 | Design bootstrap as state-aware console automation |
 | [0009](0009-design-bootstrap-preparation-as-flow-driven.md) | Accepted | Design bootstrap preparation as flow-driven |
 | [0010](0010-apply-rendered-text-configs-through-console.md) | Accepted | Apply rendered text configs through console |
+| [0011](0011-use-shared-service-result-schemas.md) | Accepted | Use shared service result schemas |

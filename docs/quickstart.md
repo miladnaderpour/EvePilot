@@ -4,8 +4,8 @@ This guide walks through the first steps with EvePilot after installation.
 
 See [Installation](installation.md) if you have not set up EvePilot yet.
 
-> EvePilot is currently in early development. The first CLI workflow focuses on
-> EVE-NG node discovery and console endpoint extraction.
+> EvePilot is currently in early preview. It is usable for lab testing, but CLI
+> commands and JSON schemas may change before version 1.0.0.
 
 ---
 
@@ -40,32 +40,34 @@ evepilot nodes all --lab EIGRP/Basics.unl
 Example output:
 
 ```json
-[
-  {
-    "id": 1,
-    "name": "CSR-1",
-    "status": 2,
-    "type": "qemu",
-    "url": "telnet://10.1.2.3:32769",
-    "console": {
-      "protocol": "telnet",
-      "host": "10.1.2.3",
-      "port": 32769
-    }
+{
+  "ok": true,
+  "code": "nodes.all.completed",
+  "data": {
+    "nodes": [
+      {
+        "id": 1,
+        "name": "CSR-1",
+        "status": 2,
+        "type": "qemu",
+        "url": "telnet://10.1.2.3:32769",
+        "console": {
+          "protocol": "telnet",
+          "host": "10.1.2.3",
+          "port": 32769
+        }
+      }
+    ]
   },
-  {
-    "id": 2,
-    "name": "CSR-2",
-    "status": 2,
-    "type": "qemu",
-    "url": "telnet://10.1.2.3:32770",
-    "console": {
-      "protocol": "telnet",
-      "host": "10.1.2.3",
-      "port": 32770
-    }
+  "error": null,
+  "meta": {
+    "service": "EvePilot",
+    "version": "0.3.0",
+    "timestamp": "2026-06-07T12:00:00+00:00",
+    "duration_seconds": 0.4,
+    "request_id": null
   }
-]
+}
 ```
 
 ---
@@ -80,15 +82,19 @@ Example output:
 
 ```json
 {
-  "id": 1,
-  "name": "CSR-1",
-  "status": 2,
-  "type": "qemu",
-  "url": "telnet://10.1.2.3:32769",
-  "console": {
-    "protocol": "telnet",
-    "host": "10.1.2.3",
-    "port": 32769
+  "ok": true,
+  "code": "nodes.get.completed",
+  "data": {
+    "id": 1,
+    "name": "CSR-1",
+    "status": 2,
+    "type": "qemu",
+    "url": "telnet://10.1.2.3:32769",
+    "console": {
+      "protocol": "telnet",
+      "host": "10.1.2.3",
+      "port": 32769
+    }
   }
 }
 ```
@@ -96,8 +102,14 @@ Example output:
 You can pipe this output to other tools:
 
 ```bash
-evepilot nodes get --lab EIGRP/Basics.unl --node CSR-1 | jq '.console.port'
+evepilot nodes get --lab EIGRP/Basics.unl --node CSR-1 | jq '.data.console.port'
 # 32769
+```
+
+JSON is the default output format. For a human-friendly rendering, use:
+
+```bash
+evepilot nodes get --lab EIGRP/Basics.unl --node CSR-1 --format text
 ```
 
 ---
@@ -136,6 +148,9 @@ evepilot bootstrap prepare \
 EvePilot discovers the node console endpoint from EVE-NG, selects the console
 transport, runs the selected preparation flow, and returns structured JSON.
 
+Most commands support `--format json` and `--format text`. Use JSON for
+automation and text for quick terminal inspection.
+
 By default, `--transport auto` uses Telnet for most EVE-NG nodes and raw TCP for
 Dynamips nodes. You can override the transport if needed:
 
@@ -165,10 +180,77 @@ an enable password prompt, provide it with an environment variable:
 export EVEPILOT_BOOTSTRAP_ENABLE_SECRET=EvePilotLab123
 ```
 
+Use the plain secret value. EvePilot sends the required Enter when the flow uses
+the secret at a console prompt.
+
+---
+
+## 5. Apply a Rendered Config
+
+EvePilot can apply an already-rendered text config through the prepared console.
+It does not render Jinja2 templates or resolve inventory variables. Tools such
+as Ansible should create the final config file first.
+
+Try the included example config:
+
+```bash
+evepilot bootstrap apply \
+  --lab EIGRP/Basics.unl \
+  --node CSR-1 \
+  --flow built-in:cisco-router-first-boot \
+  --file examples/configs/cisco-iosxe-basic.txt
+```
+
+Example output:
+
+```json
+{
+  "ok": true,
+  "code": "bootstrap.apply.completed",
+  "data": {
+    "node": "CSR-1",
+    "flow": "built-in:cisco-router-first-boot",
+    "transport": "telnet",
+    "config_path": "examples/configs/cisco-iosxe-basic.txt",
+    "prepared": true,
+    "config_apply": {
+      "commands_total": 38,
+      "commands_sent": 38,
+      "ready": false,
+      "final_state": null,
+      "apply_duration_seconds": 4.2
+    },
+    "duration_seconds": 7.6
+  },
+  "error": null,
+  "meta": {
+    "service": "EvePilot",
+    "version": "0.3.0",
+    "timestamp": "2026-06-07T12:00:00+00:00",
+    "duration_seconds": 7.7,
+    "request_id": null
+  }
+}
+```
+
+For terminal inspection:
+
+```bash
+evepilot bootstrap apply \
+  --lab EIGRP/Basics.unl \
+  --node CSR-1 \
+  --file examples/configs/cisco-iosxe-basic.txt \
+  --format text
+```
+
+The config file must match the target device image and interface model. EvePilot
+keeps config apply vendor-neutral in this milestone and does not hardcode
+platform-specific command error detection.
+
 ---
 
 ## Next Steps
 
 - Review all [configuration options](configuration.md)
-- Read about the [planned capabilities](../README.md#planned-capabilities) and roadmap
+- Read the [roadmap](roadmap.md)
 - See [Contributing](../CONTRIBUTING.md) if you want to help build EvePilot

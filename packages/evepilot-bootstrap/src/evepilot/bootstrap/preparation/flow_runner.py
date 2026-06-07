@@ -513,7 +513,7 @@ def _execute_ready_step(step: FlowStep, output: str) -> str:
 def _step_send_text(step: FlowStep, variables: dict[str, str]) -> str:
     if step.send_secret:
         try:
-            return variables[step.send_secret]
+            return _secret_send_text(variables[step.send_secret])
         except KeyError as exc:
             log.error(
                 "bootstrap_flow_missing_variable",
@@ -534,6 +534,12 @@ def _step_send_text(step: FlowStep, variables: dict[str, str]) -> str:
             details={"step_name": step.name},
         )
     return step.send
+
+
+def _secret_send_text(value: str) -> str:
+    if value.endswith(("\r", "\n")):
+        return value
+    return f"{value}\r\n"
 
 
 def _assert_step_expectation(step: FlowStep, output: str) -> None:

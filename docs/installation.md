@@ -92,4 +92,8 @@ EvePilot requires Python 3.11 or later. Check your version with:
 
 ```bash
 python --version
+
+or
+
+python3 --version
 ```

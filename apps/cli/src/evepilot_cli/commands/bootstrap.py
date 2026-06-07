@@ -3,26 +3,19 @@
 from __future__ import annotations
 
 import asyncio
-from dataclasses import asdict
 from pathlib import Path
 
 import typer
 
-from evepilot.bootstrap.preparation.flow_loader import list_builtin_flows, load_flow
-from evepilot.bootstrap.preparation.flow_loader import read_builtin_flow_text
-from evepilot.bootstrap.preparation.flow_runner import run_flow
-from evepilot.bootstrap.preparation.models import FlowDefinition, FlowRunResult
-from evepilot.bootstrap.preparation.variables import resolve_flow_variables
-from evepilot.bootstrap.transport.console import (
-    RawTcpConsoleSession,
-    TelnetConsoleSession,
-)
-from evepilot.core.models import ConsoleEndpoint
+from evepilot.bootstrap.service import apply_rendered_config
+from evepilot.bootstrap.service import export_flow as export_flow_service
+from evepilot.bootstrap.service import list_flows as list_flows_service
+from evepilot.bootstrap.service import prepare_console
+from evepilot.bootstrap.service import show_flow as show_flow_service
 from evepilot.eve_ng.client import EveNgClient
-from evepilot.eve_ng.errors import console_url_missing_error
-from evepilot.eve_ng.models import EveNgNode
-from evepilot_cli.output import run_eve_ng_json_command
-from evepilot_cli.output import echo_json
+from evepilot_cli.output import OutputFormat
+from evepilot_cli.output import run_json_command
+from evepilot_cli.runtime import run_with_eve_ng_client
 
 DEFAULT_FLOW = "built-in:cisco-router-first-boot"
 TRANSPORT_AUTO = "auto"
@@ -51,35 +44,84 @@ def prepare(
         "--timeout",
         help="Seconds to wait for a flow-defined console state.",
     ),
+    output_format: OutputFormat = typer.Option(
+        OutputFormat.JSON,
+        "--format",
+        help="Output format: json or text.",
+    ),
 ) -> None:
     """Prepare a node console using a bootstrap flow."""
 
     def command(client: EveNgClient) -> dict[str, object]:
-        eve_ng_node = client.get_node_by_name(lab, node)
-        if eve_ng_node.console is None:
-            raise console_url_missing_error(lab_path=lab, node_name=node)
-
-        flow_definition = load_flow(flow)
-        variables = resolve_flow_variables(flow_definition)
-        selected_transport = select_console_transport(eve_ng_node, transport)
         result = asyncio.run(
-            _run_prepare_flow(
-                console=eve_ng_node.console,
-                flow_definition=flow_definition,
-                variables=variables,
-                transport=selected_transport,
-                detect_console_timeout=detect_console_timeout,
+            prepare_console(
+                eve_ng_client=client,
+                lab_path=lab,
+                node_name=node,
+                flow_ref=flow,
+                transport=transport,
+                detect_console_timeout_seconds=detect_console_timeout,
             )
         )
-        return {
-            "node": eve_ng_node.name,
-            "console": asdict(eve_ng_node.console),
-            "flow": flow,
-            "transport": selected_transport,
-            "result": asdict(result),
-        }
+        return result.model_dump(mode="json")
 
-    run_eve_ng_json_command(command)
+    run_json_command(
+        code="bootstrap.prepare.completed",
+        command=lambda: run_with_eve_ng_client(command),
+        output_format=output_format,
+    )
+
+
+@app.command("apply")
+def apply_config(
+    lab: str = typer.Option(..., "--lab", help="EVE-NG lab path."),
+    node: str = typer.Option(..., "--node", help="EVE-NG node name."),
+    file: Path = typer.Option(..., "--file", help="Rendered config file path."),
+    flow: str = typer.Option(DEFAULT_FLOW, "--flow", help="Bootstrap flow source."),
+    transport: str = typer.Option(
+        TRANSPORT_AUTO,
+        "--transport",
+        help="Console transport: auto, telnet, or raw-tcp.",
+    ),
+    detect_console_timeout: float = typer.Option(
+        120.0,
+        "--detect-console-timeout",
+        "--timeout",
+        help="Seconds to wait for a flow-defined console state.",
+    ),
+    config_read_timeout: float = typer.Option(
+        3.0,
+        "--config-read-timeout",
+        help="Seconds to read console output after each config line.",
+    ),
+    output_format: OutputFormat = typer.Option(
+        OutputFormat.JSON,
+        "--format",
+        help="Output format: json or text.",
+    ),
+) -> None:
+    """Prepare a node console and apply a rendered config file."""
+
+    def command(client: EveNgClient) -> dict[str, object]:
+        result = asyncio.run(
+            apply_rendered_config(
+                eve_ng_client=client,
+                lab_path=lab,
+                node_name=node,
+                config_path=file,
+                flow_ref=flow,
+                transport=transport,
+                detect_console_timeout_seconds=detect_console_timeout,
+                config_read_timeout_seconds=config_read_timeout,
+            )
+        )
+        return result.model_dump(mode="json")
+
+    run_json_command(
+        code="bootstrap.apply.completed",
+        command=lambda: run_with_eve_ng_client(command),
+        output_format=output_format,
+    )
 
 
 @flow_app.command("list")
@@ -89,20 +131,37 @@ def list_flows(
         "--source",
         help="Flow source to list. Currently only built-in is supported.",
     ),
+    output_format: OutputFormat = typer.Option(
+        OutputFormat.JSON,
+        "--format",
+        help="Output format: json or text.",
+    ),
 ) -> None:
     """List available bootstrap flows."""
 
-    if source != FLOW_SOURCE_BUILT_IN:
-        raise typer.BadParameter("Only built-in flow listing is supported.")
-
-    echo_json([asdict(flow) for flow in list_builtin_flows()])
+    run_json_command(
+        code="bootstrap.flow.list.completed",
+        command=lambda: list_flows_service(source=source).model_dump(mode="json"),
+        output_format=output_format,
+    )
 
 
 @flow_app.command("show")
-def show_flow(source: str = typer.Argument(..., help="Flow source to show.")) -> None:
+def show_flow(
+    source: str = typer.Argument(..., help="Flow source to show."),
+    output_format: OutputFormat = typer.Option(
+        OutputFormat.JSON,
+        "--format",
+        help="Output format: json or text.",
+    ),
+) -> None:
     """Print a bootstrap flow YAML definition."""
 
-    typer.echo(_read_flow_text(source))
+    run_json_command(
+        code="bootstrap.flow.show.completed",
+        command=lambda: show_flow_service(source).model_dump(mode="json"),
+        output_format=output_format,
+    )
 
 
 @flow_app.command("export")
@@ -110,67 +169,20 @@ def export_flow(
     source: str = typer.Argument(..., help="Flow source to export."),
     output: Path = typer.Option(..., "--output", "-o", help="Output YAML path."),
     force: bool = typer.Option(False, "--force", help="Overwrite an existing file."),
+    output_format: OutputFormat = typer.Option(
+        OutputFormat.JSON,
+        "--format",
+        help="Output format: json or text.",
+    ),
 ) -> None:
     """Export a bootstrap flow YAML definition to a file."""
 
-    text = _read_flow_text(source)
-    if output.exists() and not force:
-        raise typer.BadParameter(f"Output file already exists: {output}")
-
-    output.parent.mkdir(parents=True, exist_ok=True)
-    output.write_text(text, encoding="utf-8")
-    echo_json({"source": source, "output": str(output)})
-
-
-async def _run_prepare_flow(
-    *,
-    console: ConsoleEndpoint,
-    flow_definition: FlowDefinition,
-    variables: dict[str, str],
-    transport: str,
-    detect_console_timeout: float,
-) -> FlowRunResult:
-    async with _console_session(console=console, transport=transport) as session:
-        return await run_flow(
-            flow_definition,
-            session,
-            variables=variables,
-            detection_timeout_seconds=detect_console_timeout,
-        )
-
-
-def select_console_transport(node: EveNgNode, requested_transport: str) -> str:
-    """Select the console transport for a node."""
-
-    normalized_transport = requested_transport.lower()
-    if normalized_transport not in {
-        TRANSPORT_AUTO,
-        TRANSPORT_TELNET,
-        TRANSPORT_RAW_TCP,
-    }:
-        raise typer.BadParameter("Transport must be auto, telnet, or raw-tcp.")
-
-    if normalized_transport != TRANSPORT_AUTO:
-        return normalized_transport
-
-    if (node.type or "").lower() == "dynamips":
-        return TRANSPORT_RAW_TCP
-
-    return TRANSPORT_TELNET
-
-
-def _read_flow_text(source: str) -> str:
-    if not source.startswith("built-in:"):
-        raise typer.BadParameter("Only built-in flow sources are supported.")
-    flow_name = source.removeprefix("built-in:")
-    return read_builtin_flow_text(flow_name)
-
-
-def _console_session(
-    *,
-    console: ConsoleEndpoint,
-    transport: str,
-) -> RawTcpConsoleSession | TelnetConsoleSession:
-    if transport == TRANSPORT_RAW_TCP:
-        return RawTcpConsoleSession(host=console.host, port=console.port)
-    return TelnetConsoleSession(host=console.host, port=console.port)
+    run_json_command(
+        code="bootstrap.flow.export.completed",
+        command=lambda: export_flow_service(
+            source=source,
+            output=output,
+            force=force,
+        ).model_dump(mode="json"),
+        output_format=output_format,
+    )

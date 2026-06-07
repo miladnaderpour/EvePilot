@@ -52,6 +52,28 @@ The CLI output should remain JSON-first so tools such as Ansible, CI/CD jobs, an
 Lines beginning with `#` may be treated as generated comments in a later
 milestone, but they should not be filtered by default in Milestone 0.3.0.
 
+## Error Detection
+
+Config apply must remain vendor-neutral.
+
+Milestone 0.3.0 must not hardcode Cisco, Juniper, Palo Alto, Fortinet, or other
+platform-specific command error detection. The user or upstream renderer is
+responsible for providing a rendered config file that matches the target device.
+
+Future error detection should be flow/profile-driven using a BYOE model: bring
+your own error patterns.
+
+Example future profile or flow section:
+
+```yaml
+error_patterns:
+  - "% Invalid input detected"
+  - "% Incomplete command"
+```
+
+If no error patterns are provided, EvePilot should only send commands, capture
+console output, and report structured command results.
+
 Example future command:
 
 ```bash
@@ -85,15 +107,27 @@ Example result shape:
 
 ```json
 {
-  "node": "CSR-1",
-  "file": "rendered-configs/CSR-1.txt",
-  "prepared": true,
-  "commands_total": 5,
-  "commands_sent": 5,
-  "final_state": "privileged_exec_prompt",
-  "ready": true,
-  "duration_seconds": 12.4,
-  "errors": []
+  "ok": true,
+  "code": "bootstrap.apply.completed",
+  "data": {
+    "node": "CSR-1",
+    "config_path": "rendered-configs/CSR-1.txt",
+    "prepared": true,
+    "config_apply": {
+      "commands_total": 5,
+      "commands_sent": 5,
+      "apply_duration_seconds": 2.4
+    },
+    "duration_seconds": 12.4
+  },
+  "error": null,
+  "meta": {
+    "service": "EvePilot",
+    "version": "0.3.0",
+    "timestamp": "2026-06-07T12:00:00+00:00",
+    "duration_seconds": 12.4,
+    "request_id": null
+  }
 }
 ```
 
@@ -106,7 +140,10 @@ Example result shape:
 - Skipping blank lines and Cisco `!` separator/comment lines avoids sending
   harmless formatting noise to device consoles.
 - `duration_seconds` can be included in results if it is cheap to collect, but
-  it is not required for the first implementation.
+  it is not required for the first implementation. Internally,
+  `ConfigApplyResult` should use `apply_duration_seconds` so it is clear that
+  the value measures only line-by-line config application, not EVE-NG lookup,
+  console connection, or preparation flow runtime.
 - Advanced config error parsing can be added later without changing the initial
   boundary.
 - Reload-aware and multi-stage workflows remain deferred to a later milestone.
