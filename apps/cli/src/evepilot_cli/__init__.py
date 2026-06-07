@@ -1,0 +1,1 @@
+"""EvePilot CLI application."""

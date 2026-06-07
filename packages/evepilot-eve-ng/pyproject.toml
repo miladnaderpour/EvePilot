@@ -1,0 +1,17 @@
+[build-system]
+requires = ["setuptools>=69", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "evepilot-eve-ng"
+version = "0.3.0"
+description = "EVE-NG API integration for EvePilot."
+requires-python = ">=3.11"
+dependencies = [
+    "evepilot-core==0.3.0",
+    "requests>=2.32",
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+namespaces = true

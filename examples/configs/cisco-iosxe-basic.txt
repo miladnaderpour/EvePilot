@@ -1,0 +1,63 @@
+conf t
+service password-encryption
+!
+hostname EvePilot-R1
+!
+!
+!
+!
+!
+! Config DNS Servers and lookup
+ip name-server 10.10.10.10 10.10.10.11 10.10.10.12
+no ip domain lookup
+ip domain name evepilot.io
+!
+!
+!
+login on-success log
+!
+!
+!
+!
+! Config MPLS
+mpls label protocol ldp
+!
+!
+!
+interface GigabitEthernet1
+ description Link-1
+ ip address 10.0.1.1 255.255.255.252
+ negotiation auto
+ no mop enabled
+ no mop sysid
+!
+interface GigabitEthernet2
+ description Link-2
+ ip address 10.0.2.1 255.255.255.252
+ negotiation auto
+ no mop enabled
+ no mop sysid
+!
+no ip http server
+ip http authentication local
+ip http secure-server
+!
+!
+line vty 0 4
+ login local
+ transport input ssh
+ transport output ssh
+line vty 5 10
+ login local
+ transport input ssh
+ transport output ssh
+line vty 11 530
+ no login
+ no exec
+ transport input none
+ transport output none
+!
+!
+!
+end
+wr

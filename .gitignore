@@ -1,0 +1,35 @@
+# Local credentials and configuration
+evepilot.toml
+.env
+
+# === Private project notes ===
+.private/
+_private/
+*.private.md
+*.local.md
+NOTES.md
+scratch/
+
+# Python virtual environments
+.venv/
+venv/
+env/
+
+# Python caches and build outputs
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+build/
+dist/
+*.egg-info/
+
+# Runtime logs
+logs/
+
+# Editor and OS files
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
