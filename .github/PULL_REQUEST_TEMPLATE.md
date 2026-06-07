@@ -21,7 +21,7 @@ Closes #
 
 <!-- Bullet list of specific changes. -->
 
-- 
+-
 
 ## Testing
 

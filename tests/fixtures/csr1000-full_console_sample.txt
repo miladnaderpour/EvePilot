@@ -42,7 +42,7 @@ linux isord, size=0x27a845%IOSXEBOOT-4-PART_VERIFY: (local/local): Verifying par
 *Jun 05 10:17:02.614: %IOSXEBOOT-4-BOOT_SRC: (rp/0): Checking grub versions 2.3 vs 2.3
 
 *Jun 05 10:17:02.620: %IOSXEBOOT-4-BOOT_SRC: (rp/0): Bootloader upgrade not necessary.
-Jun  5 10:17:21.526: %BOOT-5-OPMODE_LOG: R0/0: binos: System booted in AUTONOMOUS mode            
+Jun  5 10:17:21.526: %BOOT-5-OPMODE_LOG: R0/0: binos: System booted in AUTONOMOUS mode
 
 			Restricted Rights Legend
 
@@ -122,4 +122,4 @@ Autoinstall trying DHCPv4 on GigabitEthernet1,GigabitEthernet2,GigabitEthernet3,
 
          --- System Configuration Dialog ---
 
-Would you like to enter the initial configuration dialog? [yes/no]: 
+Would you like to enter the initial configuration dialog? [yes/no]:

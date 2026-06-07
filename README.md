@@ -81,6 +81,20 @@ export EVEPILOT_EVE_NG_USERNAME=admin
 export EVEPILOT_EVE_NG_PASSWORD=eve
 ```
 
+Apply an already-rendered plain text config:
+
+```bash
+evepilot bootstrap apply \
+  --lab EIGRP/Basics.unl \
+  --node CSR-1 \
+  --flow built-in:cisco-router-first-boot \
+  --file examples/configs/cisco-iosxe-basic.txt
+```
+
+EvePilot discovers the node console, prepares the router, and sends the rendered
+text file line by line. Template rendering and inventory variable handling
+should happen before this step, for example in Ansible.
+
 List nodes in a lab:
 
 ```bash
